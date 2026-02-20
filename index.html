@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="copyright" content="2026@박주가리교감">
+  <meta name="theme-color" content="#4A90E2">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>품.꿈.힘 한자 어휘 추론 네비게이션</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192x192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app-container">
+    <header id="status-board">
+      <div class="progress-bar" id="level-display">시스템 초기화 중...</div>
+      <div class="mileage-wallet">
+        <span id="current-mileage">🪙 0 M</span>
+        <span id="streak-bonus" style="display:none;">🔥 연속 정답!</span>
+      </div>
+      <div id="master-badge" class="master-badge hidden" title="품·꿈·힘 코스웨어를 일정 기준 이상 완주한 학습자 표시"><span class="star">⭐</span><span class="label">마스터</span></div>
+    </header>
+
+    <section id="context-passage">
+      <p id="question-text">데이터를 불러오는 중입니다...</p>
+    </section>
+
+    <section id="morpheme-hints"></section>
+
+    <section id="action-area" aria-label="정답 입력 영역">
+      <input type="text" id="answer-input" placeholder="추론한 단어를 입력하세요" autocomplete="off" inputmode="text" enterkeyhint="done">
+      <button id="submit-btn">정답 확인</button>
+    </section>
+
+    <section id="growth-tree-panel">
+      <h3 class="tree-title">품.꿈.힘 한자나무</h3>
+      <div class="tree-visual-container">
+        <div id="tree-canvas" class="phase-pum"><div id="master-star" class="master-star hidden" aria-label="마스터 별">⭐</div></div>
+      </div>
+      <div class="tree-stats">
+        <span class="badge pum-badge active">품(기본)</span>
+        <span class="badge kkum-badge">꿈(확장)</span>
+        <span class="badge him-badge">힘(도약)</span>
+      </div>
+      <button id="upgrade-btn" data-cost="50">양분 공급 (-50 M)</button>
+    </section>
+
+    <footer id="copyright-footer">
+      <p>&copy; 2026@박주가리교감 All rights reserved.</p>
+    </footer>
+
+    <div id="toast" class="toast" aria-live="polite" aria-atomic="true"></div>
+    <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="modal-title">알림</h3>
+          <button id="modal-close" class="icon-btn" aria-label="닫기">✕</button>
+        </div>
+        <div id="modal-body" class="modal-body"></div>
+        <div class="modal-actions">
+          <button id="modal-primary" class="btn-primary">다음</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTE: 일부 모바일(iOS 파일앱 등)에서는 file:// 로 열면 외부 JS 로딩이 차단될 수 있습니다.
+       그런 경우 index_singlefile.html(단일 파일 버전)을 실행하거나, 간단 웹서버로 실행하세요. -->
+  <script src="database.js" defer></script>
+  <script src="core_engine.js" defer></script>
+
+  <script>
+    // 부트/진단: 스크립트 로딩이 막혔을 때 사용자에게 명확히 안내
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const q = document.getElementById('question-text');
+        const loaded = (typeof window.EduEngine !== 'undefined') || (document.getElementById('level-display')?.innerText || '').indexOf('Level') >= 0;
+        if (!loaded && q) {
+          q.innerHTML = `
+            <b>실행 권한 제한으로 학습 엔진이 로드되지 않았습니다.</b><br>
+            <div style="margin-top:8px; line-height:1.5;">
+              ✅ 해결 1) <b>index_singlefile.html</b>을 열어 실행<br>
+              ✅ 해결 2) 이 폴더를 <b>웹서버로 실행</b>(PC: python -m http.server) 후 접속<br>
+              ✅ 해결 3) GitHub Pages/학교 홈페이지 등 <b>https</b>로 올려 PWA 설치
+            </div>
+          `;
+        }
+      }, 700);
+    });
+
+    // PWA(https 환경에서만 정상). file:// 에서는 실패해도 앱은 동작해야 하므로 catch만.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('ServiceWorker 등록 완료:', reg.scope))
+          .catch(err => console.log('ServiceWorker 등록(또는 업데이트) 불가:', err));
+      });
+    }
+  </script>
+</body>
+</html>

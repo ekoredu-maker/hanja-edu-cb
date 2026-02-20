@@ -1,0 +1,26 @@
+{
+  "name": "품.꿈.힘 한자 어휘 추론 네비게이션",
+  "short_name": "행복한자",
+  "description": "초등학생 문맥 기반 어휘 추론 학습 시스템",
+  "copyright": "2026@박주가리교감",
+  "start_url": "./index.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F6F8",
+  "theme_color": "#4A90E2",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
