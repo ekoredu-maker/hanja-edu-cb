@@ -134,6 +134,8 @@ window.EduEngine = class EduEngine {
       modalBody: document.getElementById('modal-body'),
       modalClose: document.getElementById('modal-close'),
       modalPrimary: document.getElementById('modal-primary')
+    ,
+      resetBtn: document.getElementById('reset-btn')
     };
   }
 
@@ -153,6 +155,10 @@ window.EduEngine = class EduEngine {
           try { this.el.answerInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
         }, 200);
       });
+    }
+
+    if (this.el.resetBtn) {
+      this.el.resetBtn.addEventListener('click', () => this.resetProgress());
     }
 
     if (this.el.upgradeBtn) {
@@ -235,7 +241,7 @@ window.EduEngine = class EduEngine {
   initDB() {
     // 1) PKHDATABASE가 있으면 새 스키마를 legacy 형태로 어댑트
     if (typeof window !== 'undefined' && window.PKHDATABASE && Array.isArray(window.PKHDATABASE.items)) {
-      this._dbItems = window.PKHDATABASE.items.map((it) => {
+      this._dbItems = this.dedupById(window.PKHDATABASE.items.map((it) => {
         const levelNum = (it.level === 'pum') ? 1 : (it.level === 'kkum' ? 2 : 3);
         const fallbackSubject = (it.packId || '').replace(/^(pum|kkum|him)-/, '') || '혼합';
         const mor = (it.morphemes || []).map(m => {
@@ -260,7 +266,7 @@ window.EduEngine = class EduEngine {
 
     // 2) legacy
     if (typeof vocabDatabase !== 'undefined' && Array.isArray(vocabDatabase)) {
-      this._dbItems = vocabDatabase;
+      this._dbItems = this.dedupById(vocabDatabase);
       return;
     }
 
@@ -270,6 +276,18 @@ window.EduEngine = class EduEngine {
   getDBItems() {
     if (!this._dbItems) this.initDB();
     return this._dbItems || [];
+  }
+
+  dedupById(list) {
+    const seen = new Set();
+    const out = [];
+    (list || []).forEach(it => {
+      if (!it || !it.id) return;
+      if (seen.has(it.id)) return;
+      seen.add(it.id);
+      out.push(it);
+    });
+    return out;
   }
   // ----------------------
   // Master(별) 판정 로직
