@@ -16,7 +16,7 @@ window.EduEngine = class EduEngine {
     this.state = this.loadStateSafe();
 
     // 설정값
-    this.THRESHOLDS = { '품': 0, '꿈': 200, '힘': 500 };
+    this.GROWTH = { seed: 0, sprout: 501, stem: 1501, tree: 5001, star: 10001 };
     this.RECENT_AVOID_N = 8; // 최근 출제 중복 방지
 
     // 런타임 변수
@@ -216,13 +216,13 @@ window.EduEngine = class EduEngine {
     if (this.el.mileage) this.el.mileage.innerText = `🪙 ${this.state.mileage} M`;
 
     if (this.el.treeCanvas) {
-      const stage = this.getGrowthStage(this.state.mileage);
+      const stage = this.getGrowthStage(this.state.tree.growthPoints);
       this.state.tree.phase = stage;
       this.el.treeCanvas.className = `phase-${stage}`;
     }
 
     document.querySelectorAll('.badge').forEach(b => b.classList.remove('active'));
-    const stage = this.getGrowthStage(this.state.mileage);
+    const stage = this.getGrowthStage(this.state.tree.growthPoints);
     const sel = stage === 'seed' ? '.seed-badge' : stage === 'sprout' ? '.sprout-badge' : stage === 'stem' ? '.stem-badge' : stage === 'tree' ? '.tree-badge' : '.star-badge';
     const b = document.querySelector(sel);
     if (b) b.classList.add('active');
@@ -314,7 +314,7 @@ window.EduEngine = class EduEngine {
 
     // 단계 배지(씨앗/새싹/줄기/나무/별)
     document.querySelectorAll('.badge').forEach(b => b.classList.remove('active'));
-    const stage = this.getGrowthStage(this.state.mileage);
+    const stage = this.getGrowthStage(this.state.tree.growthPoints);
     const sel = stage === 'seed' ? '.seed-badge' : stage === 'sprout' ? '.sprout-badge' : stage === 'stem' ? '.stem-badge' : stage === 'tree' ? '.tree-badge' : '.star-badge';
     const el = document.querySelector(sel);
     if (el) el.classList.add('active');
@@ -362,6 +362,16 @@ window.EduEngine = class EduEngine {
     if (!this.ensureDatabase()) return;
 
     const availableWords = this.getDBItems().filter(word => word.level <= this.state.unlockedLevel);
+
+    // v3.3.1: 시작단계(씨앗/새싹)에서는 저학년 1글자(숫자/자연) 중심으로 출제
+    const stageNow = this.getGrowthStage(this.state.tree.growthPoints);
+    const isOneChar = (w) => (Array.isArray(w.morphemes) && w.morphemes.length === 1) || /\(1글자\)/.test(String(w.subject||''));
+    const seedPool = (w) => w.level === 1 && isOneChar(w) && /(숫자|자연)/.test(String(w.subject||''));
+    const sproutPool = (w) => w.level === 1 && isOneChar(w);
+    let stageFiltered = availableWords;
+    if (stageNow === 'seed') stageFiltered = availableWords.filter(seedPool);
+    else if (stageNow === 'sprout') stageFiltered = availableWords.filter(sproutPool);
+    if (!stageFiltered || stageFiltered.length < 10) stageFiltered = availableWords;
     if (availableWords.length === 0) {
       if (this.el.questionText) this.el.questionText.innerText = '해금된 단어가 없습니다. (Level 설정 확인 필요)';
       return;
@@ -498,6 +508,8 @@ window.EduEngine = class EduEngine {
 
     // 마일리지 지급
     this.state.mileage += finalReward;
+    // v3.3.2: 정답 보상은 나무 성장점수에도 누적(마일리지와 별개)
+    this.state.tree.growthPoints = (this.state.tree.growthPoints || 0) + finalReward;
 
     // per-item 통계
     const st = this.getItemStat(this.currentQuestion.id);
@@ -593,7 +605,7 @@ window.EduEngine = class EduEngine {
       this.showModal({
         title: '성장!',
         primaryText: '계속',
-        bodyHTML: `🎉 한자나무가 <b>'${this.state.tree.phase}'</b> 단계로 도약했어요!<br>이제 <b>Level ${this.state.unlockedLevel}</b> 어휘가 출제됩니다.`,
+        bodyHTML: `🎉 한자나무가 <b>${(this.state.tree.phase==='seed'?'씨앗':this.state.tree.phase==='sprout'?'새싹':this.state.tree.phase==='stem'?'줄기':this.state.tree.phase==='tree'?'나무':'별')}</b> 단계로 도약했어요!<br>이제 <b>Level ${this.state.unlockedLevel}</b> 어휘가 출제됩니다.`,
         onPrimary: () => this.loadNextQuestion()
       });
     } else {
@@ -602,17 +614,21 @@ window.EduEngine = class EduEngine {
   }
 
   evaluatePhase() {
-    const pts = this.state.tree.growthPoints;
-    let newPhase = '품';
-    let newLevel = 1;
+    const g = this.state.tree.growthPoints || 0;
+    const newPhase = this.getGrowthStage(g);
 
-    if (pts >= this.THRESHOLDS['힘']) {
-      newPhase = '힘';
-      newLevel = 3;
-    } else if (pts >= this.THRESHOLDS['꿈']) {
-      newPhase = '꿈';
-      newLevel = 2;
-    }
+    let newLevel = 1;
+    if (newPhase === 'stem') newLevel = 2;
+    if (newPhase === 'tree' || newPhase === 'star') newLevel = 3;
+
+    const changed = (newPhase !== this.state.tree.phase) || (newLevel !== this.state.unlockedLevel);
+
+    this.state.tree.phase = newPhase;
+    this.state.unlockedLevel = newLevel;
+
+    return changed;
+  }
+
 
     const changed = (this.state.tree.phase !== newPhase);
     if (changed) {
