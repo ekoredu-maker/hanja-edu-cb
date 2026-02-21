@@ -22,8 +22,8 @@ const vocabDatabase = [
     },
     {
         id: "v_104", word: "남녀", level: 1, subject: "일상",
-        context: "남자아이와 여자아이, 즉 성별이 다른 두 사람을 함께 묶어서 [ ? ](이)라고 부릅니다.",
-        morphemes: [ { hanja: "男", meaning: "사내 남" }, { hanja: "女", meaning: "여자 녀" } ]
+        context: "사내아이와 여자아이, 즉 성별이 다른 두 사람을 함께 묶어서 [ ? ](이)라고 부릅니다.",
+        morphemes: [ { hanja: "男", meaning: "사내 남" }, { hanja: "女", meaning: "계집 녀" } ]
     },
     {
         id: "v_105", word: "상하", level: 1, subject: "기초",
@@ -383,7 +383,14 @@ const vocabDatabase = [
         id: "v_345", word: "인과응보", level: 3, subject: "한자성어",
         context: "원인과 결과가 서로 호응하여 갚는다는 뜻으로, 좋은 일을 하면 좋은 결과가 오고 나쁜 일을 하면 나쁜 결과가 따른다는 자연의 이치를 [ ? ](이)라고 합니다.",
         morphemes: [ { hanja: "因", meaning: "인할 인" }, { hanja: "果", meaning: "열매 과" }, { hanja: "應", meaning: "응할 응" }, { hanja: "報", meaning: "갚을 보" } ]
-    },
+    }
+
+
+
+
+
+
+,
 // --- [추가 확장 문항: 품(무학년제/기초) + 꿈(교과연계)] ---
 {
     id: "pum_add_001", word: "수량", level: 1, subject: "숫자/양",
@@ -565,7 +572,145 @@ const vocabDatabase = [
     { id:"him-soc", level:"him", title:"힘-사회/공동체", tags:["social","civics"] },
     { id:"him-think",level:"him", title:"힘-사고/논리", tags:["thinking","abstract"] },
     { id:"him-mix", level:"him", title:"힘-심화 혼합", tags:["mixed"] },
-  ];
+  ,
+// --- [v3.3 확장 문항: 품(저학년) 1글자 한자어(숫자/자연)] ---
+{
+    id: "pum_num_001", word: "일", level: 1, subject: "숫자(1글자)",
+    context: "수 세기에서 가장 처음 오는 수는 [ ? ]이야.",
+    morphemes: [ { hanja: "一", meaning: "한 일" } ]
+},
+{
+    id: "pum_num_002", word: "이", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]는 하나 다음에 오는 수야.",
+    morphemes: [ { hanja: "二", meaning: "두 이" } ]
+},
+{
+    id: "pum_num_003", word: "삼", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]은(는) 둘 다음에 오는 수야.",
+    morphemes: [ { hanja: "三", meaning: "석 삼" } ]
+},
+{
+    id: "pum_num_004", word: "사", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]는 셋 다음에 오는 수야.",
+    morphemes: [ { hanja: "四", meaning: "넉 사" } ]
+},
+{
+    id: "pum_num_005", word: "오", level: 1, subject: "숫자(1글자)",
+    context: "손가락은 한 손에 [ ? ]개가 있어.",
+    morphemes: [ { hanja: "五", meaning: "다섯 오" } ]
+},
+{
+    id: "pum_num_006", word: "육", level: 1, subject: "숫자(1글자)",
+    context: "주사위의 가장 큰 눈은 [ ? ]이야.",
+    morphemes: [ { hanja: "六", meaning: "여섯 육" } ]
+},
+{
+    id: "pum_num_007", word: "칠", level: 1, subject: "숫자(1글자)",
+    context: "일주일은 [ ? ]일이야.",
+    morphemes: [ { hanja: "七", meaning: "일곱 칠" } ]
+},
+{
+    id: "pum_num_008", word: "팔", level: 1, subject: "숫자(1글자)",
+    context: "거미는 다리가 [ ? ]개야.",
+    morphemes: [ { hanja: "八", meaning: "여덟 팔" } ]
+},
+{
+    id: "pum_num_009", word: "구", level: 1, subject: "숫자(1글자)",
+    context: "열 바로 전의 수는 [ ? ]야.",
+    morphemes: [ { hanja: "九", meaning: "아홉 구" } ]
+},
+{
+    id: "pum_num_010", word: "십", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]은 한 자리 수 중 가장 큰 수야.",
+    morphemes: [ { hanja: "十", meaning: "열 십" } ]
+},
+{
+    id: "pum_num_011", word: "백", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]은 100을 뜻해.",
+    morphemes: [ { hanja: "百", meaning: "일백 백" } ]
+},
+{
+    id: "pum_num_012", word: "천", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]은 1000을 뜻해.",
+    morphemes: [ { hanja: "千", meaning: "일천 천" } ]
+},
+{
+    id: "pum_num_013", word: "만", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]은 10000을 뜻해.",
+    morphemes: [ { hanja: "萬", meaning: "일만 만" } ]
+},
+{
+    id: "pum_nat_001", word: "산", level: 1, subject: "자연(1글자)",
+    context: "높게 솟아 있는 땅을 [ ? ]이라고 해.",
+    morphemes: [ { hanja: "山", meaning: "뫼 산" } ]
+},
+{
+    id: "pum_nat_002", word: "물", level: 1, subject: "자연(1글자)",
+    context: "목이 마를 때 마시는 것은 [ ? ]이야.",
+    morphemes: [ { hanja: "水", meaning: "물 수" } ]
+},
+{
+    id: "pum_nat_003", word: "비", level: 1, subject: "자연(1글자)",
+    context: "하늘에서 물방울이 떨어지는 것을 [ ? ]라고 해.",
+    morphemes: [ { hanja: "雨", meaning: "비 우" } ]
+},
+{
+    id: "pum_nat_004", word: "눈", level: 1, subject: "자연(1글자)",
+    context: "겨울에 하늘에서 하얗게 내리는 것은 [ ? ]이야.",
+    morphemes: [ { hanja: "雪", meaning: "눈 설" } ]
+},
+{
+    id: "pum_nat_005", word: "바람", level: 1, subject: "자연(1글자)",
+    context: "나뭇잎이 흔들리는 건 [ ? ] 때문이야.",
+    morphemes: [ { hanja: "風", meaning: "바람 풍" } ]
+},
+{
+    id: "pum_nat_006", word: "불", level: 1, subject: "자연(1글자)",
+    context: "따뜻하게 해 주고 밝게 비추는 것은 [ ? ]이야.",
+    morphemes: [ { hanja: "火", meaning: "불 화" } ]
+},
+{
+    id: "pum_nat_007", word: "나무", level: 1, subject: "자연(1글자)",
+    context: "숲에 많은 식물을 [ ? ]라고 해.",
+    morphemes: [ { hanja: "木", meaning: "나무 목" } ]
+},
+{
+    id: "pum_nat_008", word: "흙", level: 1, subject: "자연(1글자)",
+    context: "식물이 자라기 위해 필요한 땅은 [ ? ]이야.",
+    morphemes: [ { hanja: "土", meaning: "흙 토" } ]
+},
+{
+    id: "pum_nat_009", word: "하늘", level: 1, subject: "자연(1글자)",
+    context: "구름과 새가 있는 곳은 [ ? ]이야.",
+    morphemes: [ { hanja: "天", meaning: "하늘 천" } ]
+},
+{
+    id: "pum_nat_010", word: "땅", level: 1, subject: "자연(1글자)",
+    context: "우리가 서 있는 곳은 [ ? ]야.",
+    morphemes: [ { hanja: "地", meaning: "땅 지" } ]
+},
+{
+    id: "pum_nat_011", word: "해", level: 1, subject: "자연(1글자)",
+    context: "낮에 하늘을 밝히는 것은 [ ? ]야.",
+    morphemes: [ { hanja: "日", meaning: "해 일" } ]
+},
+{
+    id: "pum_nat_012", word: "달", level: 1, subject: "자연(1글자)",
+    context: "밤하늘에서 밝게 보이는 것은 [ ? ]이야.",
+    morphemes: [ { hanja: "月", meaning: "달 월" } ]
+},
+{
+    id: "pum_nat_013", word: "별", level: 1, subject: "자연(1글자)",
+    context: "밤하늘에 반짝이는 것은 [ ? ]이야.",
+    morphemes: [ { hanja: "星", meaning: "별 성" } ]
+},
+{
+    id: "pum_nat_014", word: "숲", level: 1, subject: "자연(1글자)",
+    context: "나무가 많이 모인 곳을 [ ? ]이라고 해.",
+    morphemes: [ { hanja: "林", meaning: "수풀 림" } ]
+}
+
+];
 
   const items = (Array.isArray(vocabDatabase)? vocabDatabase: []).map((it, idx) => {
     const levelKey = mapLevelKey(it.level);

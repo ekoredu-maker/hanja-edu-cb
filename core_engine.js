@@ -37,7 +37,7 @@ window.EduEngine = class EduEngine {
     return {
       version: this.VERSION,
       mileage: 0,
-      tree: { phase: '품', growthPoints: 0 },
+      tree: { phase: 'seed', growthPoints: 0 },
       stats: { streak: 0, totalSolved: 0 },
       unlockedLevel: 1,
       // 학습 최적화를 위한 통계
@@ -216,13 +216,16 @@ window.EduEngine = class EduEngine {
     if (this.el.mileage) this.el.mileage.innerText = `🪙 ${this.state.mileage} M`;
 
     if (this.el.treeCanvas) {
-      this.el.treeCanvas.className = `phase-${this.state.tree.phase === '품' ? 'pum' : this.state.tree.phase === '꿈' ? 'kkum' : 'him'}`;
+      const stage = this.getGrowthStage(this.state.mileage);
+      this.state.tree.phase = stage;
+      this.el.treeCanvas.className = `phase-${stage}`;
     }
 
     document.querySelectorAll('.badge').forEach(b => b.classList.remove('active'));
-    if (this.state.tree.phase === '품') { const b = document.querySelector('.pum-badge'); if (b) b.classList.add('active'); }
-    if (this.state.tree.phase === '꿈') { const b = document.querySelector('.kkum-badge'); if (b) b.classList.add('active'); }
-    if (this.state.tree.phase === '힘') { const b = document.querySelector('.him-badge'); if (b) b.classList.add('active'); }
+    const stage = this.getGrowthStage(this.state.mileage);
+    const sel = stage === 'seed' ? '.seed-badge' : stage === 'sprout' ? '.sprout-badge' : stage === 'stem' ? '.stem-badge' : stage === 'tree' ? '.tree-badge' : '.star-badge';
+    const b = document.querySelector(sel);
+    if (b) b.classList.add('active');
   }
 
   // ----------------------
@@ -294,87 +297,27 @@ window.EduEngine = class EduEngine {
   // - 단계별(품/꿈/힘) 문항의 '고유 정답률'과 '힌트 사용률'을 기준으로 판정합니다.
   // - 기준값은 교실 상황에 맞게 아래 상수만 조정하면 됩니다.
   computeMastery() {
-    const items = this.getDBItems();
-    const perItem = this.state.perItem || {};
-
-    const byLevel = { 1: [], 2: [], 3: [] };
-    items.forEach(it => { if (byLevel[it.level]) byLevel[it.level].push(it); });
-
-    const thresholds = {
-      // 단계별: 고유 정답 비율(=맞힌 단어 수/전체 단어 수)
-      uniqueCorrectRatio: { 1: 0.80, 2: 0.75, 3: 0.70 },
-      // 단계별: 힌트 사용률(힌트 사용/총 풀이) 상한
-      hintRateMax:        { 1: 0.35, 2: 0.30, 3: 0.25 },
-      // 단계별: 최소 풀이량(전체의 이 비율 이상 '본 기록'이 있어야 완주로 봄)
-      seenCoverageMin:    { 1: 0.60, 2: 0.55, 3: 0.50 }
-    };
-
-    const calc = (lvl) => {
-      const list = byLevel[lvl] || [];
-      const total = list.length || 0;
-      if (total === 0) return { ok:false, total:0, uniqueCorrect:0, seen:0, hintRate:1 };
-
-      let uniqueCorrect = 0;
-      let seen = 0;
-      let hints = 0;
-      let solved = 0;
-
-      list.forEach(it => {
-        const st = perItem[it.id] || { seen:0, correct:0, wrong:0, hints:0 };
-        if (st.correct > 0) uniqueCorrect += 1;
-        if (st.seen > 0) seen += 1;
-        hints += (st.hints || 0);
-        solved += (st.correct || 0) + (st.wrong || 0);
-      });
-
-      const uniqueRatio = uniqueCorrect / total;
-      const coverage = seen / total;
-      const hintRate = solved > 0 ? (hints / solved) : 1;
-
-      const ok = (uniqueRatio >= thresholds.uniqueCorrectRatio[lvl]) &&
-                 (hintRate <= thresholds.hintRateMax[lvl]) &&
-                 (coverage >= thresholds.seenCoverageMin[lvl]);
-
-      return { ok, total, uniqueCorrect, seen, uniqueRatio, coverage, hintRate };
-    };
-
-    const pum = calc(1);
-    const kkum = calc(2);
-    const him = calc(3);
-
-    const master = pum.ok && kkum.ok && him.ok;
-
-    this.state.mastery = {
-      pum: pum.ok,
-      kkum: kkum.ok,
-      him: him.ok,
-      master,
-      detail: { pum, kkum, him }
-    };
+    // v3.3: 별(마스터)은 마일리지 기반 성장 단계로 판정합니다.
+    const on = (Number(this.state.mileage||0) >= 10001);
+    this.state.mastery = { pum:false, kkum:false, him:false, master:on };
     this.state.masteryUpdatedAt = Date.now();
     this.saveState();
   }
 
   renderMasterUI() {
-    const m = this.state.mastery || {};
     const badge = document.getElementById('master-badge');
     const star = document.getElementById('master-star');
 
-    const on = !!m.master;
+    const on = (Number(this.state.mileage||0) >= 10001);
     if (badge) badge.classList.toggle('hidden', !on);
     if (star) star.classList.toggle('hidden', !on);
 
-    // 단계별 배지 상태(품/꿈/힘)
-    const setActive = (selector, active) => {
-      const el = document.querySelector(selector);
-      if (!el) return;
-      el.classList.toggle('active', !!active);
-    };
-    // 기존 active는 '현재 단계'를 표시하던 용도였는데,
-    // v3.1에서는 '완주 여부'도 함께 느껴지도록 active를 유지합니다.
-    setActive('.pum-badge', m.pum || (this.state.unlockedLevel===1));
-    setActive('.kkum-badge', m.kkum || (this.state.unlockedLevel>=2));
-    setActive('.him-badge', m.him || (this.state.unlockedLevel>=3));
+    // 단계 배지(씨앗/새싹/줄기/나무/별)
+    document.querySelectorAll('.badge').forEach(b => b.classList.remove('active'));
+    const stage = this.getGrowthStage(this.state.mileage);
+    const sel = stage === 'seed' ? '.seed-badge' : stage === 'sprout' ? '.sprout-badge' : stage === 'stem' ? '.stem-badge' : stage === 'tree' ? '.tree-badge' : '.star-badge';
+    const el = document.querySelector(sel);
+    if (el) el.classList.add('active');
   }
 
   levelLabel(lvl) {

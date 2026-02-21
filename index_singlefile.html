@@ -227,6 +227,13 @@ body { background-color: var(--bg-color); color: var(--text-main); display: flex
   #context-passage{ font-size: 1.05rem; line-height: 1.7; }
 }
 
+/* ---- Growth phases (v3.3): seed/sprout/stem/tree/star ---- */
+#tree-canvas.phase-seed{ background: linear-gradient(180deg, rgba(255,255,255,0.0), rgba(255,255,255,0.35)); }
+#tree-canvas.phase-sprout{ background: linear-gradient(180deg, rgba(255,255,255,0.0), rgba(160,220,160,0.25)); }
+#tree-canvas.phase-stem{ background: linear-gradient(180deg, rgba(255,255,255,0.0), rgba(180,220,140,0.28)); }
+#tree-canvas.phase-tree{ background: linear-gradient(180deg, rgba(255,255,255,0.0), rgba(120,190,120,0.30)); }
+#tree-canvas.phase-star{ background: linear-gradient(180deg, rgba(255,255,255,0.0), rgba(220,200,120,0.28)); }
+
   </style>
 </head>
 <body>
@@ -237,7 +244,7 @@ body { background-color: var(--bg-color); color: var(--text-main); display: flex
         <span id="current-mileage">🪙 0 M</span>
         <span id="streak-bonus" style="display:none;">🔥 연속 정답!</span>
       </div>
-      <div id="master-badge" class="master-badge hidden" title="품·꿈·힘 코스웨어를 일정 기준 이상 완주한 학습자 표시"><span class="star">⭐</span><span class="label">마스터</span></div>
+      <div id="master-badge" class="master-badge hidden" title="마일리지 10001 이상 학습자 표시"><span class="star">⭐</span><span class="label">마스터</span></div>
       <button id="reset-btn" class="icon-btn reset-btn" title="학습 기록 초기화" aria-label="학습 기록 초기화">↻</button>
     </header>
 
@@ -255,12 +262,14 @@ body { background-color: var(--bg-color); color: var(--text-main); display: flex
     <section id="growth-tree-panel">
       <h3 class="tree-title">품.꿈.힘 한자나무</h3>
       <div class="tree-visual-container">
-        <div id="tree-canvas" class="phase-pum"><div id="master-star" class="master-star hidden" aria-label="마스터 별">⭐</div></div>
+        <div id="tree-canvas" class="phase-seed"><div id="master-star" class="master-star hidden" aria-label="마스터 별">⭐</div></div>
       </div>
-      <div class="tree-stats">
-        <span class="badge pum-badge active">품(기본)</span>
-        <span class="badge kkum-badge">꿈(확장)</span>
-        <span class="badge him-badge">힘(도약)</span>
+      <div class="tree-stats" aria-label="한자나무 성장 단계">
+        <span class="badge seed-badge active">씨앗</span>
+        <span class="badge sprout-badge">새싹</span>
+        <span class="badge stem-badge">줄기</span>
+        <span class="badge tree-badge">나무</span>
+        <span class="badge star-badge">별</span>
       </div>
       <button id="upgrade-btn" data-cost="50">양분 공급 (-50 M)</button>
     </section>
@@ -404,7 +413,7 @@ const vocabDatabase = [
     {
         id: "v_212", word: "친구", level: 2, subject: "학교생활",
         context: "학교나 동네에서 오래전부터 가깝게 어울려 지내며 정이 든 사람을 [ ? ](이)라고 부릅니다.",
-        morphemes: [ { hanja: "朋", meaning: "벗 붕" }, { hanja: "友", meaning: "벗 우" } ]
+        morphemes: [ { hanja: "親", meaning: "친할 친" }, { hanja: "舊", meaning: "옛 구" } ]
     },
     {
         id: "v_213", word: "일기", level: 2, subject: "학교생활",
@@ -859,7 +868,145 @@ const vocabDatabase = [
     { id:"him-soc", level:"him", title:"힘-사회/공동체", tags:["social","civics"] },
     { id:"him-think",level:"him", title:"힘-사고/논리", tags:["thinking","abstract"] },
     { id:"him-mix", level:"him", title:"힘-심화 혼합", tags:["mixed"] },
-  ];
+  ,
+// --- [v3.3 확장 문항: 품(저학년) 1글자 한자어(숫자/자연)] ---
+{
+    id: "pum_num_001", word: "일", level: 1, subject: "숫자(1글자)",
+    context: "수 세기에서 가장 처음 오는 수는 [ ? ]이야.",
+    morphemes: [ { hanja: "一", meaning: "한 일" } ]
+},
+{
+    id: "pum_num_002", word: "이", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]는 하나 다음에 오는 수야.",
+    morphemes: [ { hanja: "二", meaning: "두 이" } ]
+},
+{
+    id: "pum_num_003", word: "삼", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]은(는) 둘 다음에 오는 수야.",
+    morphemes: [ { hanja: "三", meaning: "석 삼" } ]
+},
+{
+    id: "pum_num_004", word: "사", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]는 셋 다음에 오는 수야.",
+    morphemes: [ { hanja: "四", meaning: "넉 사" } ]
+},
+{
+    id: "pum_num_005", word: "오", level: 1, subject: "숫자(1글자)",
+    context: "손가락은 한 손에 [ ? ]개가 있어.",
+    morphemes: [ { hanja: "五", meaning: "다섯 오" } ]
+},
+{
+    id: "pum_num_006", word: "육", level: 1, subject: "숫자(1글자)",
+    context: "주사위의 가장 큰 눈은 [ ? ]이야.",
+    morphemes: [ { hanja: "六", meaning: "여섯 육" } ]
+},
+{
+    id: "pum_num_007", word: "칠", level: 1, subject: "숫자(1글자)",
+    context: "일주일은 [ ? ]일이야.",
+    morphemes: [ { hanja: "七", meaning: "일곱 칠" } ]
+},
+{
+    id: "pum_num_008", word: "팔", level: 1, subject: "숫자(1글자)",
+    context: "거미는 다리가 [ ? ]개야.",
+    morphemes: [ { hanja: "八", meaning: "여덟 팔" } ]
+},
+{
+    id: "pum_num_009", word: "구", level: 1, subject: "숫자(1글자)",
+    context: "열 바로 전의 수는 [ ? ]야.",
+    morphemes: [ { hanja: "九", meaning: "아홉 구" } ]
+},
+{
+    id: "pum_num_010", word: "십", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]은 한 자리 수 중 가장 큰 수야.",
+    morphemes: [ { hanja: "十", meaning: "열 십" } ]
+},
+{
+    id: "pum_num_011", word: "백", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]은 100을 뜻해.",
+    morphemes: [ { hanja: "百", meaning: "일백 백" } ]
+},
+{
+    id: "pum_num_012", word: "천", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]은 1000을 뜻해.",
+    morphemes: [ { hanja: "千", meaning: "일천 천" } ]
+},
+{
+    id: "pum_num_013", word: "만", level: 1, subject: "숫자(1글자)",
+    context: "[ ? ]은 10000을 뜻해.",
+    morphemes: [ { hanja: "萬", meaning: "일만 만" } ]
+},
+{
+    id: "pum_nat_001", word: "산", level: 1, subject: "자연(1글자)",
+    context: "높게 솟아 있는 땅을 [ ? ]이라고 해.",
+    morphemes: [ { hanja: "山", meaning: "뫼 산" } ]
+},
+{
+    id: "pum_nat_002", word: "물", level: 1, subject: "자연(1글자)",
+    context: "목이 마를 때 마시는 것은 [ ? ]이야.",
+    morphemes: [ { hanja: "水", meaning: "물 수" } ]
+},
+{
+    id: "pum_nat_003", word: "비", level: 1, subject: "자연(1글자)",
+    context: "하늘에서 물방울이 떨어지는 것을 [ ? ]라고 해.",
+    morphemes: [ { hanja: "雨", meaning: "비 우" } ]
+},
+{
+    id: "pum_nat_004", word: "눈", level: 1, subject: "자연(1글자)",
+    context: "겨울에 하늘에서 하얗게 내리는 것은 [ ? ]이야.",
+    morphemes: [ { hanja: "雪", meaning: "눈 설" } ]
+},
+{
+    id: "pum_nat_005", word: "바람", level: 1, subject: "자연(1글자)",
+    context: "나뭇잎이 흔들리는 건 [ ? ] 때문이야.",
+    morphemes: [ { hanja: "風", meaning: "바람 풍" } ]
+},
+{
+    id: "pum_nat_006", word: "불", level: 1, subject: "자연(1글자)",
+    context: "따뜻하게 해 주고 밝게 비추는 것은 [ ? ]이야.",
+    morphemes: [ { hanja: "火", meaning: "불 화" } ]
+},
+{
+    id: "pum_nat_007", word: "나무", level: 1, subject: "자연(1글자)",
+    context: "숲에 많은 식물을 [ ? ]라고 해.",
+    morphemes: [ { hanja: "木", meaning: "나무 목" } ]
+},
+{
+    id: "pum_nat_008", word: "흙", level: 1, subject: "자연(1글자)",
+    context: "식물이 자라기 위해 필요한 땅은 [ ? ]이야.",
+    morphemes: [ { hanja: "土", meaning: "흙 토" } ]
+},
+{
+    id: "pum_nat_009", word: "하늘", level: 1, subject: "자연(1글자)",
+    context: "구름과 새가 있는 곳은 [ ? ]이야.",
+    morphemes: [ { hanja: "天", meaning: "하늘 천" } ]
+},
+{
+    id: "pum_nat_010", word: "땅", level: 1, subject: "자연(1글자)",
+    context: "우리가 서 있는 곳은 [ ? ]야.",
+    morphemes: [ { hanja: "地", meaning: "땅 지" } ]
+},
+{
+    id: "pum_nat_011", word: "해", level: 1, subject: "자연(1글자)",
+    context: "낮에 하늘을 밝히는 것은 [ ? ]야.",
+    morphemes: [ { hanja: "日", meaning: "해 일" } ]
+},
+{
+    id: "pum_nat_012", word: "달", level: 1, subject: "자연(1글자)",
+    context: "밤하늘에서 밝게 보이는 것은 [ ? ]이야.",
+    morphemes: [ { hanja: "月", meaning: "달 월" } ]
+},
+{
+    id: "pum_nat_013", word: "별", level: 1, subject: "자연(1글자)",
+    context: "밤하늘에 반짝이는 것은 [ ? ]이야.",
+    morphemes: [ { hanja: "星", meaning: "별 성" } ]
+},
+{
+    id: "pum_nat_014", word: "숲", level: 1, subject: "자연(1글자)",
+    context: "나무가 많이 모인 곳을 [ ? ]이라고 해.",
+    morphemes: [ { hanja: "林", meaning: "수풀 림" } ]
+}
+
+];
 
   const items = (Array.isArray(vocabDatabase)? vocabDatabase: []).map((it, idx) => {
     const levelKey = mapLevelKey(it.level);
@@ -947,7 +1094,7 @@ window.EduEngine = class EduEngine {
     return {
       version: this.VERSION,
       mileage: 0,
-      tree: { phase: '품', growthPoints: 0 },
+      tree: { phase: 'seed', growthPoints: 0 },
       stats: { streak: 0, totalSolved: 0 },
       unlockedLevel: 1,
       // 학습 최적화를 위한 통계
@@ -1126,13 +1273,16 @@ window.EduEngine = class EduEngine {
     if (this.el.mileage) this.el.mileage.innerText = `🪙 ${this.state.mileage} M`;
 
     if (this.el.treeCanvas) {
-      this.el.treeCanvas.className = `phase-${this.state.tree.phase === '품' ? 'pum' : this.state.tree.phase === '꿈' ? 'kkum' : 'him'}`;
+      const stage = this.getGrowthStage(this.state.mileage);
+      this.state.tree.phase = stage;
+      this.el.treeCanvas.className = `phase-${stage}`;
     }
 
     document.querySelectorAll('.badge').forEach(b => b.classList.remove('active'));
-    if (this.state.tree.phase === '품') { const b = document.querySelector('.pum-badge'); if (b) b.classList.add('active'); }
-    if (this.state.tree.phase === '꿈') { const b = document.querySelector('.kkum-badge'); if (b) b.classList.add('active'); }
-    if (this.state.tree.phase === '힘') { const b = document.querySelector('.him-badge'); if (b) b.classList.add('active'); }
+    const stage = this.getGrowthStage(this.state.mileage);
+    const sel = stage === 'seed' ? '.seed-badge' : stage === 'sprout' ? '.sprout-badge' : stage === 'stem' ? '.stem-badge' : stage === 'tree' ? '.tree-badge' : '.star-badge';
+    const b = document.querySelector(sel);
+    if (b) b.classList.add('active');
   }
 
   // ----------------------
@@ -1204,87 +1354,27 @@ window.EduEngine = class EduEngine {
   // - 단계별(품/꿈/힘) 문항의 '고유 정답률'과 '힌트 사용률'을 기준으로 판정합니다.
   // - 기준값은 교실 상황에 맞게 아래 상수만 조정하면 됩니다.
   computeMastery() {
-    const items = this.getDBItems();
-    const perItem = this.state.perItem || {};
-
-    const byLevel = { 1: [], 2: [], 3: [] };
-    items.forEach(it => { if (byLevel[it.level]) byLevel[it.level].push(it); });
-
-    const thresholds = {
-      // 단계별: 고유 정답 비율(=맞힌 단어 수/전체 단어 수)
-      uniqueCorrectRatio: { 1: 0.80, 2: 0.75, 3: 0.70 },
-      // 단계별: 힌트 사용률(힌트 사용/총 풀이) 상한
-      hintRateMax:        { 1: 0.35, 2: 0.30, 3: 0.25 },
-      // 단계별: 최소 풀이량(전체의 이 비율 이상 '본 기록'이 있어야 완주로 봄)
-      seenCoverageMin:    { 1: 0.60, 2: 0.55, 3: 0.50 }
-    };
-
-    const calc = (lvl) => {
-      const list = byLevel[lvl] || [];
-      const total = list.length || 0;
-      if (total === 0) return { ok:false, total:0, uniqueCorrect:0, seen:0, hintRate:1 };
-
-      let uniqueCorrect = 0;
-      let seen = 0;
-      let hints = 0;
-      let solved = 0;
-
-      list.forEach(it => {
-        const st = perItem[it.id] || { seen:0, correct:0, wrong:0, hints:0 };
-        if (st.correct > 0) uniqueCorrect += 1;
-        if (st.seen > 0) seen += 1;
-        hints += (st.hints || 0);
-        solved += (st.correct || 0) + (st.wrong || 0);
-      });
-
-      const uniqueRatio = uniqueCorrect / total;
-      const coverage = seen / total;
-      const hintRate = solved > 0 ? (hints / solved) : 1;
-
-      const ok = (uniqueRatio >= thresholds.uniqueCorrectRatio[lvl]) &&
-                 (hintRate <= thresholds.hintRateMax[lvl]) &&
-                 (coverage >= thresholds.seenCoverageMin[lvl]);
-
-      return { ok, total, uniqueCorrect, seen, uniqueRatio, coverage, hintRate };
-    };
-
-    const pum = calc(1);
-    const kkum = calc(2);
-    const him = calc(3);
-
-    const master = pum.ok && kkum.ok && him.ok;
-
-    this.state.mastery = {
-      pum: pum.ok,
-      kkum: kkum.ok,
-      him: him.ok,
-      master,
-      detail: { pum, kkum, him }
-    };
+    // v3.3: 별(마스터)은 마일리지 기반 성장 단계로 판정합니다.
+    const on = (Number(this.state.mileage||0) >= 10001);
+    this.state.mastery = { pum:false, kkum:false, him:false, master:on };
     this.state.masteryUpdatedAt = Date.now();
     this.saveState();
   }
 
   renderMasterUI() {
-    const m = this.state.mastery || {};
     const badge = document.getElementById('master-badge');
     const star = document.getElementById('master-star');
 
-    const on = !!m.master;
+    const on = (Number(this.state.mileage||0) >= 10001);
     if (badge) badge.classList.toggle('hidden', !on);
     if (star) star.classList.toggle('hidden', !on);
 
-    // 단계별 배지 상태(품/꿈/힘)
-    const setActive = (selector, active) => {
-      const el = document.querySelector(selector);
-      if (!el) return;
-      el.classList.toggle('active', !!active);
-    };
-    // 기존 active는 '현재 단계'를 표시하던 용도였는데,
-    // v3.1에서는 '완주 여부'도 함께 느껴지도록 active를 유지합니다.
-    setActive('.pum-badge', m.pum || (this.state.unlockedLevel===1));
-    setActive('.kkum-badge', m.kkum || (this.state.unlockedLevel>=2));
-    setActive('.him-badge', m.him || (this.state.unlockedLevel>=3));
+    // 단계 배지(씨앗/새싹/줄기/나무/별)
+    document.querySelectorAll('.badge').forEach(b => b.classList.remove('active'));
+    const stage = this.getGrowthStage(this.state.mileage);
+    const sel = stage === 'seed' ? '.seed-badge' : stage === 'sprout' ? '.sprout-badge' : stage === 'stem' ? '.stem-badge' : stage === 'tree' ? '.tree-badge' : '.star-badge';
+    const el = document.querySelector(sel);
+    if (el) el.classList.add('active');
   }
 
   levelLabel(lvl) {
