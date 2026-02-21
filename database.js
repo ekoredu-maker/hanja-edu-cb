@@ -117,7 +117,7 @@ const vocabDatabase = [
     {
         id: "v_212", word: "친구", level: 2, subject: "학교생활",
         context: "학교나 동네에서 오래전부터 가깝게 어울려 지내며 정이 든 사람을 [ ? ](이)라고 부릅니다.",
-        morphemes: [ { hanja: "親", meaning: "친할 친" }, { hanja: "久", meaning: "오랠 구" } ]
+        morphemes: [ { hanja: "親", meaning: "친할 친" }, { hanja: "舊", meaning: "오랠 구" } ]
     },
     {
         id: "v_213", word: "일기", level: 2, subject: "학교생활",
