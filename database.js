@@ -22,8 +22,8 @@ const vocabDatabase = [
     },
     {
         id: "v_104", word: "남녀", level: 1, subject: "일상",
-        context: "사내아이와 여자아이, 즉 성별이 다른 두 사람을 함께 묶어서 [ ? ](이)라고 부릅니다.",
-        morphemes: [ { hanja: "男", meaning: "사내 남" }, { hanja: "女", meaning: "계집 녀" } ]
+        context: "남자아이와 여자아이, 즉 성별이 다른 두 사람을 함께 묶어서 [ ? ](이)라고 부릅니다.",
+        morphemes: [ { hanja: "男", meaning: "사내 남" }, { hanja: "女", meaning: "여자 녀" } ]
     },
     {
         id: "v_105", word: "상하", level: 1, subject: "기초",
@@ -117,7 +117,7 @@ const vocabDatabase = [
     {
         id: "v_212", word: "친구", level: 2, subject: "학교생활",
         context: "학교나 동네에서 오래전부터 가깝게 어울려 지내며 정이 든 사람을 [ ? ](이)라고 부릅니다.",
-        morphemes: [ { hanja: "朋", meaning: "벗 붕" }, { hanja: "友", meaning: "벗 우" } ]
+        morphemes: [ { hanja: "親", meaning: "친할 친" }, { hanja: "久", meaning: "오랠 구" } ]
     },
     {
         id: "v_213", word: "일기", level: 2, subject: "학교생활",
@@ -383,14 +383,7 @@ const vocabDatabase = [
         id: "v_345", word: "인과응보", level: 3, subject: "한자성어",
         context: "원인과 결과가 서로 호응하여 갚는다는 뜻으로, 좋은 일을 하면 좋은 결과가 오고 나쁜 일을 하면 나쁜 결과가 따른다는 자연의 이치를 [ ? ](이)라고 합니다.",
         morphemes: [ { hanja: "因", meaning: "인할 인" }, { hanja: "果", meaning: "열매 과" }, { hanja: "應", meaning: "응할 응" }, { hanja: "報", meaning: "갚을 보" } ]
-    }
-
-
-
-
-
-
-,
+    },
 // --- [추가 확장 문항: 품(무학년제/기초) + 꿈(교과연계)] ---
 {
     id: "pum_add_001", word: "수량", level: 1, subject: "숫자/양",
