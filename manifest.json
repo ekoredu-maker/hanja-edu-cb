@@ -1,6 +1,6 @@
 {
   "name": "품.꿈.힘 한자어 추론 공부",
-  "short_name": "품꿈힘한자공부",
+  "short_name": "품꿈힘한자",
   "description": "초등학생 문맥 기반 어휘 추론 학습 시스템",
   "copyright": "2026@박주가리교감",
   "start_url": "./index.html?source=pwa",
