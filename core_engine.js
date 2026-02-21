@@ -260,7 +260,7 @@ window.EduEngine = class EduEngine {
           context: ctx,
           morphemes: mor
         };
-      });
+      }));
       return;
     }
 
