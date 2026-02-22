@@ -76,12 +76,12 @@ const vocabDatabase = [
     },
     {
         id: "seed_022", word: "해", level: 1, subject: "자연(1글자)",
-        context: "하늘에서 밝게 빛나는 태양을 한자어로 [ ? ](이)라고 해요.",
+        context: "하늘에서 밝게 빛나는 [ ? ]을 한자어로 일(이)라고 해요.",
         morphemes: [ { hanja: "日", meaning: "날(해) 일" } ]
     },
     {
         id: "seed_023", word: "달", level: 1, subject: "자연(1글자)",
-        context: "밤하늘에 떠서 은은하게 빛나는 것을 [ ? ](이)라고 해요.",
+        context: "밤하늘에 떠서 은은하게 빛나는  [ ? ]을 월(이)라고 해요.",
         morphemes: [ { hanja: "月", meaning: "달 월" } ]
     },
     {
