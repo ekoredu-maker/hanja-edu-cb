@@ -6,6 +6,8 @@
  * - 정답 후 해설 카드(형태소 뜻 요약)
  * - alert 제거 → 토스트/모달로 UX 개선
  * - 성장 포인트 자동 적립(힌트 없이 맞히면 보너스)
+ * - [수정] 엔터키 중복 입력 방지 상태 잠금 적용
+ * - [수정] 씨앗/새싹 단계 DB 맞춤형 난이도 필터링 적용
  */
 
 window.EduEngine = class EduEngine {
@@ -22,6 +24,7 @@ window.EduEngine = class EduEngine {
     // 런타임 변수
     this.currentQuestion = null;
     this.hintsUsed = 0;
+    this.isProcessing = false; // [추가] 중복 입력 방지 플래그
 
     this.initDOM();
     // 마스터(별) 상태 초기 표시
@@ -133,8 +136,7 @@ window.EduEngine = class EduEngine {
       modalTitle: document.getElementById('modal-title'),
       modalBody: document.getElementById('modal-body'),
       modalClose: document.getElementById('modal-close'),
-      modalPrimary: document.getElementById('modal-primary')
-    ,
+      modalPrimary: document.getElementById('modal-primary'),
       resetBtn: document.getElementById('reset-btn')
     };
   }
@@ -292,10 +294,10 @@ window.EduEngine = class EduEngine {
     });
     return out;
   }
+  
   // ----------------------
   // Master(별) 판정 로직
-  // - 단계별(품/꿈/힘) 문항의 '고유 정답률'과 '힌트 사용률'을 기준으로 판정합니다.
-  // - 기준값은 교실 상황에 맞게 아래 상수만 조정하면 됩니다.
+  // ----------------------
   computeMastery() {
     // v3.3: 별(마스터)은 마일리지 기반 성장 단계로 판정합니다.
     const on = (Number(this.state.mileage||0) >= 10001);
@@ -333,7 +335,6 @@ window.EduEngine = class EduEngine {
     return counts;
   }
 
-
   weightedPick(candidates) {
     // 오답/힌트가 많을수록 가중치↑, 최근 출제는 가중치↓
     const recentSet = new Set(this.state.recentQueue);
@@ -359,25 +360,29 @@ window.EduEngine = class EduEngine {
   }
 
   loadNextQuestion() {
+    this.isProcessing = false; // [수정] 새 문제가 로드되면 입력 잠금 해제
+
     if (!this.ensureDatabase()) return;
 
     const availableWords = this.getDBItems().filter(word => word.level <= this.state.unlockedLevel);
 
-    // v3.3.1: 시작단계(씨앗/새싹)에서는 저학년 1글자(숫자/자연) 중심으로 출제
+    // [수정] DB의 실제 구조(subject)를 반영한 씨앗/새싹 난이도 필터링
     const stageNow = this.getGrowthStage(this.state.tree.growthPoints);
-    const isOneChar = (w) => (Array.isArray(w.morphemes) && w.morphemes.length === 1) || /\(1글자\)/.test(String(w.subject||''));
-    const seedPool = (w) => w.level === 1 && isOneChar(w) && /(숫자|자연)/.test(String(w.subject||''));
-    const sproutPool = (w) => w.level === 1 && isOneChar(w);
+    const seedPool = (w) => w.level === 1 && /(숫자|양|자연|날씨|기초)/.test(String(w.subject || ''));
+    const sproutPool = (w) => w.level === 1;
+
     let stageFiltered = availableWords;
     if (stageNow === 'seed') stageFiltered = availableWords.filter(seedPool);
     else if (stageNow === 'sprout') stageFiltered = availableWords.filter(sproutPool);
+
     if (!stageFiltered || stageFiltered.length < 10) stageFiltered = availableWords;
+    
     if (availableWords.length === 0) {
       if (this.el.questionText) this.el.questionText.innerText = '해금된 단어가 없습니다. (Level 설정 확인 필요)';
       return;
     }
 
-    this.currentQuestion = this.weightedPick(availableWords);
+    this.currentQuestion = this.weightedPick(stageFiltered); // 필터링된 배열에서 추출
     this.hintsUsed = 0;
 
     // 통계 업데이트
@@ -461,6 +466,8 @@ window.EduEngine = class EduEngine {
   }
 
   checkAnswer() {
+    if (this.isProcessing) return; // [수정] 처리 중일 경우 중복 입력 차단
+
     if (!this.currentQuestion || !this.el.answerInput) return;
 
     const inputVal = this.normalizeAnswer(this.el.answerInput.value);
@@ -470,6 +477,8 @@ window.EduEngine = class EduEngine {
       this.showToast('정답을 입력해 주세요');
       return;
     }
+
+    this.isProcessing = true; // [수정] 정답 판정 진입 시 잠금 설정
 
     if (inputVal === correctVal) {
       this.onCorrect();
@@ -582,6 +591,8 @@ window.EduEngine = class EduEngine {
     this.el.answerInput.value = '';
     this.el.answerInput.placeholder = '다시 유추해 보세요!';
     this.showToast('아쉬워요! 다시 한 번');
+
+    this.isProcessing = false; // [수정] 오답 처리 후 잠금 해제
   }
 
   // ----------------------
@@ -627,6 +638,29 @@ window.EduEngine = class EduEngine {
     this.state.unlockedLevel = newLevel;
 
     return changed;
+  }
+
+  // ----------------------
+  // 누락된 보조 메서드 (추가)
+  // ----------------------
+  
+  getGrowthStage(points) {
+    if (points >= this.GROWTH.star) return 'star';
+    if (points >= this.GROWTH.tree) return 'tree';
+    if (points >= this.GROWTH.stem) return 'stem';
+    if (points >= this.GROWTH.sprout) return 'sprout';
+    return 'seed';
+  }
+
+  resetProgress() {
+    if (confirm('모든 학습 기록과 마일리지가 초기화됩니다. 계속하시겠습니까?')) {
+      try {
+        localStorage.removeItem('eduState');
+        location.reload();
+      } catch (e) {
+        console.error('초기화 중 오류 발생', e);
+      }
+    }
   }
 }
 

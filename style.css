@@ -222,3 +222,10 @@ body { background-color: var(--bg-color); color: var(--text-main); display: flex
 #tree-canvas.phase-stem{ background: linear-gradient(180deg, rgba(255,255,255,0.0), rgba(180,220,140,0.28)); }
 #tree-canvas.phase-tree{ background: linear-gradient(180deg, rgba(255,255,255,0.0), rgba(120,190,120,0.30)); }
 #tree-canvas.phase-star{ background: linear-gradient(180deg, rgba(255,255,255,0.0), rgba(220,200,120,0.28)); }
+
+/* ---- Growth phase icons (v4.0.3): seed/sprout/stem/tree/star ---- */
+#tree-canvas.phase-seed::after  { content: "🌰"; }
+#tree-canvas.phase-sprout::after{ content: "🌱"; }
+#tree-canvas.phase-stem::after  { content: "🌿"; }
+#tree-canvas.phase-tree::after  { content: "🌳"; }
+#tree-canvas.phase-star::after  { content: "⭐"; }

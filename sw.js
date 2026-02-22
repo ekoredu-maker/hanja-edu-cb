@@ -3,10 +3,11 @@
  * 모듈: PWA Service Worker (Offline Cache Proxy)
  */
 
-const CACHE_NAME = 'hanja-edu-cache-v2';
+const CACHE_NAME = 'hanja-edu-cache-v4.0.3';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
+    './index_singlefile.html',
     './style.css',
     './core_engine.js',
     './database.js',
