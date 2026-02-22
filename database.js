@@ -5,6 +5,85 @@
 
 const vocabDatabase = [
     // --- [Level 1 (1~2학년 수준): 기초한자, 숫자, 자연, 일상표현] ---
+
+    // --- [Seed starter (새싹/씨앗 도입용): 1글자 한자어(숫자/요일/자연)] ---
+    {
+        id: "seed_001", word: "일", level: 1, subject: "숫자(1글자)",
+        context: "하나(1)를 한자어로 읽으면 [ ? ](이)라고 해요.",
+        morphemes: [ { hanja: "一", meaning: "한 일" } ]
+    },
+    {
+        id: "seed_002", word: "이", level: 1, subject: "숫자(1글자)",
+        context: "둘(2)을 한자어로 읽으면 [ ? ](이)라고 해요.",
+        morphemes: [ { hanja: "二", meaning: "두 이" } ]
+    },
+    {
+        id: "seed_003", word: "삼", level: 1, subject: "숫자(1글자)",
+        context: "셋(3)을 한자어로 읽으면 [ ? ](이)라고 해요.",
+        morphemes: [ { hanja: "三", meaning: "셋 삼" } ]
+    },
+    {
+        id: "seed_004", word: "사", level: 1, subject: "숫자(1글자)",
+        context: "넷(4)을 한자어로 읽으면 [ ? ](이)라고 해요.",
+        morphemes: [ { hanja: "四", meaning: "넉 사" } ]
+    },
+    {
+        id: "seed_005", word: "오", level: 1, subject: "숫자(1글자)",
+        context: "다섯(5)을 한자어로 읽으면 [ ? ](이)라고 해요.",
+        morphemes: [ { hanja: "五", meaning: "다섯 오" } ]
+    },
+
+    {
+        id: "seed_011", word: "월", level: 1, subject: "자연(요일)(1글자)",
+        context: "월요일의 '월'은 달(月)을 뜻해요. [ ? ]요일",
+        morphemes: [ { hanja: "月", meaning: "달 월" } ]
+    },
+    {
+        id: "seed_012", word: "화", level: 1, subject: "자연(요일)(1글자)",
+        context: "화요일의 '화'는 불(火)을 뜻해요. [ ? ]요일",
+        morphemes: [ { hanja: "火", meaning: "불 화" } ]
+    },
+    {
+        id: "seed_013", word: "수", level: 1, subject: "자연(요일)(1글자)",
+        context: "수요일의 '수'는 물(水)을 뜻해요. [ ? ]요일",
+        morphemes: [ { hanja: "水", meaning: "물 수" } ]
+    },
+    {
+        id: "seed_014", word: "목", level: 1, subject: "자연(요일)(1글자)",
+        context: "목요일의 '목'은 나무(木)를 뜻해요. [ ? ]요일",
+        morphemes: [ { hanja: "木", meaning: "나무 목" } ]
+    },
+    {
+        id: "seed_015", word: "금", level: 1, subject: "자연(요일)(1글자)",
+        context: "금요일의 '금'은 쇠(金)을 뜻해요. [ ? ]요일",
+        morphemes: [ { hanja: "金", meaning: "쇠 금" } ]
+    },
+    {
+        id: "seed_016", word: "토", level: 1, subject: "자연(요일)(1글자)",
+        context: "토요일의 '토'는 흙(土)을 뜻해요. [ ? ]요일",
+        morphemes: [ { hanja: "土", meaning: "흙 토" } ]
+    },
+    {
+        id: "seed_017", word: "일", level: 1, subject: "자연(요일)(1글자)",
+        context: "일요일의 '일'은 해(日)를 뜻해요. [ ? ]요일",
+        morphemes: [ { hanja: "日", meaning: "날(해) 일" } ]
+    },
+
+    {
+        id: "seed_021", word: "산", level: 1, subject: "자연(1글자)",
+        context: "높은 뫼를 한자어로 [ ? ](이)라고 해요.",
+        morphemes: [ { hanja: "山", meaning: "뫼 산" } ]
+    },
+    {
+        id: "seed_022", word: "해", level: 1, subject: "자연(1글자)",
+        context: "하늘에서 밝게 빛나는 태양을 한자어로 [ ? ](이)라고 해요.",
+        morphemes: [ { hanja: "日", meaning: "날(해) 일" } ]
+    },
+    {
+        id: "seed_023", word: "달", level: 1, subject: "자연(1글자)",
+        context: "밤하늘에 떠서 은은하게 빛나는 것을 [ ? ](이)라고 해요.",
+        morphemes: [ { hanja: "月", meaning: "달 월" } ]
+    },
     {
         id: "v_101", word: "일월", level: 1, subject: "자연",
         context: "하늘에 떠서 낮을 밝히는 해와 밤을 밝히는 달을 함께 묶어서 [ ? ](이)라고 부릅니다.",
@@ -599,7 +678,7 @@ window.vocabDatabase = vocabDatabase;
       difficulty: Math.min(5, Math.max(1, Number(it.level)||1)),
       tags: [String(it.subject||"").trim()].filter(Boolean),
       skills: ["문맥추론","한자구조인식"],
-      passage: { text: String(it.context||"").replace(/\[\s*\?\s*\]/g, "{ }"), blankPolicy:"hint" },
+      passage: { text: String(it.context||"").replace("[ ? ]","{ }"), blankPolicy:"hint" },
       morphemes: mor,
       answer: { accept: [String(it.word||"").trim()].filter(Boolean), aliases: [], reject: [] },
       explain: { short: explainShort ? (explainShort + " → 의미를 문맥에서 추론해요.") : "", examples: [] },
