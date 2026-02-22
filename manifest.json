@@ -3,7 +3,7 @@
   "short_name": "품꿈힘 한자",
   "description": "초등학생 문맥 기반 어휘 추론 학습 시스템",
   "copyright": "2026@박주가리교감",
-  "start_url": "./index.html?source=pwa",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#F4F6F8",

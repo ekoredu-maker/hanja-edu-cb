@@ -80,7 +80,7 @@
     window.addEventListener('load', () => {
       setTimeout(() => {
         const q = document.getElementById('question-text');
-        const loaded = (typeof window.EduEngine !== 'undefined') || (document.getElementById('level-display')?.innerText || '').indexOf('Level') >= 0;
+        const loaded = (typeof window.EduEngine !== 'undefined');
         if (!loaded && q) {
           q.innerHTML = `
             <b>실행 권한 제한으로 학습 엔진이 로드되지 않았습니다.</b><br>

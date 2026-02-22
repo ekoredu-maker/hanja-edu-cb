@@ -56,13 +56,6 @@ body { background-color: var(--bg-color); color: var(--text-main); display: flex
 
 #growth-tree-panel { margin: 20px; padding: 20px; background: white; border-radius: 12px; text-align: center; }
 .tree-visual-container { height: 120px; margin: 15px 0; border-radius: 12px; background-color: #f8f9fa; transition: 0.5s ease; display: flex; align-items: center; justify-content: center; font-size: 3rem;}
-.phase-pum { background-color: rgba(241, 196, 15, 0.1); border: 2px dashed #F1C40F; }
-.phase-pum::after { content: "🌱"; }
-.phase-kkum { background-color: rgba(46, 204, 113, 0.1); border: 2px solid #2ECC71; }
-.phase-kkum::after { content: "🌿"; }
-.phase-him { background-color: rgba(142, 68, 173, 0.1); border: 3px solid #8E44AD; box-shadow: 0 0 15px rgba(142,68,173,0.3); }
-.phase-him::after { content: "🌳"; }
-
 .tree-stats { margin-bottom: 15px; }
 .badge { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 0.9rem; background: #eee; color: #888; margin: 0 5px; }
 .badge.active { background: var(--primary-color); color: white; font-weight: bold; }

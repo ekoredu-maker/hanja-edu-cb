@@ -599,7 +599,7 @@ window.vocabDatabase = vocabDatabase;
       difficulty: Math.min(5, Math.max(1, Number(it.level)||1)),
       tags: [String(it.subject||"").trim()].filter(Boolean),
       skills: ["문맥추론","한자구조인식"],
-      passage: { text: String(it.context||"").replace("[ ? ]","{ }"), blankPolicy:"hint" },
+      passage: { text: String(it.context||"").replace(/\[\s*\?\s*\]/g, "{ }"), blankPolicy:"hint" },
       morphemes: mor,
       answer: { accept: [String(it.word||"").trim()].filter(Boolean), aliases: [], reject: [] },
       explain: { short: explainShort ? (explainShort + " → 의미를 문맥에서 추론해요.") : "", examples: [] },
