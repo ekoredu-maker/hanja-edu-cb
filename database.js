@@ -76,7 +76,7 @@ const vocabDatabase = [
     },
     {
         id: "seed_022", word: "해", level: 1, subject: "자연(1글자)",
-        context: "하늘에서 밝게 빛나는 [ ? ]을 한자어로 일(이)라고 해요.",
+        context: "하늘에서 밝게 빛나는 [ ? ]을(를) 한자어로 일(이)라고 해요.",
         morphemes: [ { hanja: "日", meaning: "날(해) 일" } ]
     },
     {
