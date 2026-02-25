@@ -39,7 +39,7 @@ window.EduEngine = class EduEngine {
   getDefaultState() {
     return {
       version: this.VERSION,
-      mileage: 0,
+      mileage: 50,
       tree: { phase: 'seed', growthPoints: 0 },
       stats: { streak: 0, totalSolved: 0 },
       unlockedLevel: 1,
