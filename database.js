@@ -78,7 +78,7 @@ const vocabDatabase = [
         morphemes: [ { hanja: "四", meaning: "넉 사" } ]
     },
     {
-        id: "pum_num_005", word: "오", level: 1, subject: "숫자(1글자)",
+        id: "pum_num_005", word: "다섯", level: 1, subject: "숫자(1글자)",
         context: "손가락은 한 손에 [ ? ]개가 있어.",
         morphemes: [ { hanja: "五", meaning: "다섯 오" } ]
     },
@@ -93,7 +93,7 @@ const vocabDatabase = [
         morphemes: [ { hanja: "七", meaning: "일곱 칠" } ]
     },
     {
-        id: "pum_num_008", word: "팔", level: 1, subject: "숫자(1글자)",
+        id: "pum_num_008", word: "여덟", level: 1, subject: "숫자(1글자)",
         context: "거미는 다리가 [ ? ]개야.",
         morphemes: [ { hanja: "八", meaning: "여덟 팔" } ]
     },
