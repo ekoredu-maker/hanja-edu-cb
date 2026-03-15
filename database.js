@@ -104,7 +104,7 @@ const vocabDatabase = [
     },
     {
         id: "pum_num_010", word: "십", level: 1, subject: "숫자(1글자)",
-        context: "[ ? ]은 한 자리 수 중 가장 큰 수야.",
+        context: "[ ? ]은 두 자리 수 중 가장 작은 수야.",
         morphemes: [ { hanja: "十", meaning: "열 십" } ]
     },
     {
