@@ -3879,7 +3879,7 @@ const vocabDatabase = [
     },
     {
         id: "tb_0649", word: "분비", level: 3, subject: "과학",
-        context: "임에서는 침이 [ ? ]되어 음식물의 소화를 돕는다.",
+        context: "입에서는 침이 [ ? ]되어 음식물의 소화를 돕는다.",
         morphemes: [ { hanja: "分", meaning: "나눌 분" }, { hanja: "泌", meaning: "흐를 비" } ]
     },
     {
