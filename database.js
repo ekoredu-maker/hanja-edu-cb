@@ -4635,7 +4635,7 @@ const vocabDatabase = [
     {
         id: "tb_0800", word: "등재", level: 3, subject: "국어",
         context: "내 이름이 세계 인명사전에 [ ? ]될 수 있도록 열심히 공부할 것입니다.",
-        morphemes: [ { hanja: "謄", meaning: "오를 등" }, { hanja: "載", meaning: "실을 재" } ]
+        morphemes: [ { hanja: "登", meaning: "오를 등" }, { hanja: "載", meaning: "실을 재" } ]
     },
     {
         id: "tb_0801", word: "창제", level: 3, subject: "국어",
