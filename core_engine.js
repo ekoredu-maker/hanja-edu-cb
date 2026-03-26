@@ -456,7 +456,7 @@ window.EduEngine = class EduEngine {
 
     // --- [개발자 시그니처 이스터 에그 구간] ---
     const secretCodes = [
-      "박주가리교감선생님감사합니다", 
+      "교감선생님감사합니다", 
       "열심히하겠습니다", 
       "힘들어요도와주세요"
     ];
