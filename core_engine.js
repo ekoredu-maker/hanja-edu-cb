@@ -1,33 +1,25 @@
 /*
  * Copyright (c) 2026@박주가리교감 All rights reserved.
- * 모듈: V2.0 업그레이드 빌드 (모바일/패드 최적화 + 학습효과 강화)
- * - 중복 출제 방지(최근 N문항 큐)
- * - 오답/힌트 기반 가중치 출제(간단 스페이싱)
- * - 정답 후 해설 카드(형태소 뜻 요약)
- * - alert 제거 → 토스트/모달로 UX 개선
- * - 성장 포인트 자동 적립(힌트 없이 맞히면 보너스)
- * - [수정] 엔터키 중복 입력 방지 상태 잠금 적용
- * - [수정] 씨앗/새싹 단계 DB 맞춤형 난이도 필터링 적용
+ * 모듈: V3.0 업그레이드 빌드 (모바일/패드 최적화 + 학습효과 강화)
+ * - [유지] 중복 출제 방지, 엔터키 중복 입력 방지 상태 잠금 적용
+ * - [유지] 개발자 시그니처 이스터 에그 (1회성 특별 보상)
+ * - [추가] 100,000 M 도달 시 'GOD' 궁극 등급 승급 시스템 적용
  */
 
 window.EduEngine = class EduEngine {
   constructor() {
     this.VERSION = '3.0.0';
 
-    // 상태 로드(구버전 방어)
     this.state = this.loadStateSafe();
 
-    // 설정값
     this.GROWTH = { seed: 0, sprout: 501, stem: 1501, tree: 5001, star: 10001 };
-    this.RECENT_AVOID_N = 8; // 최근 출제 중복 방지
+    this.RECENT_AVOID_N = 8; 
 
-    // 런타임 변수
     this.currentQuestion = null;
     this.hintsUsed = 0;
-    this.isProcessing = false; // [추가] 중복 입력 방지 플래그
+    this.isProcessing = false; 
 
     this.initDOM();
-    // 마스터(별) 상태 초기 표시
     try { this.computeMastery(); } catch (_) {}
     try { this.renderMasterUI(); } catch (_) {}
     this.loadNextQuestion();
@@ -43,10 +35,10 @@ window.EduEngine = class EduEngine {
       tree: { phase: 'seed', growthPoints: 0 },
       stats: { streak: 0, totalSolved: 0 },
       unlockedLevel: 1,
-      // 학습 최적화를 위한 통계
       perItem: {},
       recentQueue: [],
-      mastery: { pum:false, kkum:false, him:false, master:false },
+      // [수정] god 상태 변수 기본값 추가
+      mastery: { pum:false, kkum:false, him:false, master:false, god:false },
       masteryUpdatedAt: 0
     };
   }
@@ -57,13 +49,11 @@ window.EduEngine = class EduEngine {
       if (!raw) return this.getDefaultState();
 
       const parsed = JSON.parse(raw);
-      // 최소 필수 구조 확인
       if (!parsed || !parsed.stats || parsed.stats.totalSolved === undefined) {
         console.warn('구버전/손상 데이터 감지 → 초기화');
         return this.getDefaultState();
       }
 
-      // V2 필드 보강
       if (!parsed.version) parsed.version = this.VERSION;
       if (!parsed.unlockedLevel) parsed.unlockedLevel = 1;
       if (!parsed.perItem) parsed.perItem = {};
@@ -83,19 +73,14 @@ window.EduEngine = class EduEngine {
     try {
       localStorage.setItem('eduState', JSON.stringify(this.state));
     } catch (e) {
-      console.warn('로컬 스토리지 저장 실패(용량 부족 등).');
+      console.warn('로컬 스토리지 저장 실패');
     }
   }
 
   getItemStat(id) {
     if (!this.state.perItem[id]) {
       this.state.perItem[id] = {
-        seen: 0,
-        correct: 0,
-        wrong: 0,
-        hints: 0,
-        lastSeen: 0,
-        lastWrong: 0
+        seen: 0, correct: 0, wrong: 0, hints: 0, lastSeen: 0, lastWrong: 0
       };
     }
     return this.state.perItem[id];
@@ -103,11 +88,9 @@ window.EduEngine = class EduEngine {
 
   pushRecent(id) {
     const q = this.state.recentQueue;
-    // 중복 제거 후 push
     const idx = q.indexOf(id);
     if (idx >= 0) q.splice(idx, 1);
     q.push(id);
-    // 길이 제한
     while (q.length > this.RECENT_AVOID_N) q.shift();
   }
 
@@ -145,32 +128,25 @@ window.EduEngine = class EduEngine {
     if (this.el.submitBtn) {
       this.el.submitBtn.addEventListener('click', () => this.checkAnswer());
     }
-
     if (this.el.answerInput) {
       this.el.answerInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') this.checkAnswer();
       });
-
-      // 모바일: 포커스 시 살짝 스크롤 보정
       this.el.answerInput.addEventListener('focus', () => {
         setTimeout(() => {
           try { this.el.answerInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
         }, 200);
       });
     }
-
     if (this.el.resetBtn) {
       this.el.resetBtn.addEventListener('click', () => this.resetProgress());
     }
-
     if (this.el.upgradeBtn) {
       this.el.upgradeBtn.addEventListener('click', () => {
         const cost = Number(this.el.upgradeBtn.dataset.cost || 50);
-        this.waterTree(cost, cost); // 현재 디자인은 cost=성장값
+        this.waterTree(cost, cost); 
       });
     }
-
-    // 모달
     if (this.el.modalClose) this.el.modalClose.addEventListener('click', () => this.closeModal());
     if (this.el.modal) {
       this.el.modal.addEventListener('click', (e) => {
@@ -195,16 +171,13 @@ window.EduEngine = class EduEngine {
     this.el.modalBody.innerHTML = bodyHTML;
     this.el.modalPrimary.textContent = primaryText;
 
-    // 기존 핸들러 제거
     if (this._modalPrimaryHandler) {
       this.el.modalPrimary.removeEventListener('click', this._modalPrimaryHandler);
     }
-
     this._modalPrimaryHandler = () => {
       if (typeof onPrimary === 'function') onPrimary();
       this.closeModal();
     };
-
     this.el.modalPrimary.addEventListener('click', this._modalPrimaryHandler);
     this.el.modal.classList.remove('hidden');
   }
@@ -234,7 +207,6 @@ window.EduEngine = class EduEngine {
   // Question selection
   // ----------------------
   ensureDatabase() {
-    // v3 DB 우선: window.PKHDATABASE → legacy vocabDatabase 순서
     if (!this._dbItems) this.initDB();
     if (!this._dbItems || !Array.isArray(this._dbItems) || this._dbItems.length === 0) {
       if (this.el.questionText) this.el.questionText.innerText = '데이터베이스 오류: 단어를 불러올 수 없습니다.';
@@ -244,7 +216,6 @@ window.EduEngine = class EduEngine {
   }
 
   initDB() {
-    // 1) PKHDATABASE가 있으면 새 스키마를 legacy 형태로 어댑트
     if (typeof window !== 'undefined' && window.PKHDATABASE && Array.isArray(window.PKHDATABASE.items)) {
       this._dbItems = this.dedupById(window.PKHDATABASE.items.map((it) => {
         const levelNum = (it.level === 'pum') ? 1 : (it.level === 'kkum' ? 2 : 3);
@@ -258,23 +229,17 @@ window.EduEngine = class EduEngine {
         });
         const ctx = (it.passage && it.passage.text) ? it.passage.text.replace(/\{\s*\}/g, '[ ? ]') : '';
         return {
-          id: it.id,
-          word: (it.word && it.word.ko) ? it.word.ko : '',
-          level: levelNum,
-          subject: (it.tags && it.tags.length) ? String(it.tags[0]) : fallbackSubject,
-          context: ctx,
-          morphemes: mor
+          id: it.id, word: (it.word && it.word.ko) ? it.word.ko : '',
+          level: levelNum, subject: (it.tags && it.tags.length) ? String(it.tags[0]) : fallbackSubject,
+          context: ctx, morphemes: mor
         };
       }));
       return;
     }
-
-    // 2) legacy
     if (typeof vocabDatabase !== 'undefined' && Array.isArray(vocabDatabase)) {
       this._dbItems = this.dedupById(vocabDatabase);
       return;
     }
-
     this._dbItems = [];
   }
 
@@ -296,12 +261,13 @@ window.EduEngine = class EduEngine {
   }
   
   // ----------------------
-  // Master(별) 판정 로직
+  // Master & GOD 판정 로직
   // ----------------------
   computeMastery() {
-    // v3.3: 별(마스터)은 마일리지 기반 성장 단계로 판정합니다.
-    const on = (Number(this.state.mileage||0) >= 10001);
-    this.state.mastery = { pum:false, kkum:false, him:false, master:on };
+    const mil = Number(this.state.mileage || 0);
+    const isMaster = mil >= 10001;
+    const isGod = mil >= 100000; // [추가] 10만 도달 여부
+    this.state.mastery = { pum:false, kkum:false, him:false, master:isMaster, god:isGod };
     this.state.masteryUpdatedAt = Date.now();
     this.saveState();
   }
@@ -309,12 +275,32 @@ window.EduEngine = class EduEngine {
   renderMasterUI() {
     const badge = document.getElementById('master-badge');
     const star = document.getElementById('master-star');
+    const mil = Number(this.state.mileage || 0);
 
-    const on = (Number(this.state.mileage||0) >= 10001);
-    if (badge) badge.classList.toggle('hidden', !on);
-    if (star) star.classList.toggle('hidden', !on);
+    const isMaster = mil >= 10001;
+    const isGod = mil >= 100000;
 
-    // 단계 배지(씨앗/새싹/줄기/나무/별)
+    if (badge) {
+      badge.classList.toggle('hidden', !isMaster);
+      // [추가] GOD 등급 도달 시 UI 동적 변환
+      if (isGod) {
+        badge.innerText = '👑 GOD';
+        badge.style.background = 'linear-gradient(135deg, #FFD700, #FF8C00)';
+        badge.style.color = '#fff';
+        badge.style.border = 'none';
+        badge.style.boxShadow = '0 0 10px rgba(255, 215, 0, 0.8)';
+      } else if (isMaster) {
+        badge.innerText = '⭐ 마스터';
+        badge.style.background = ''; 
+        badge.style.color = '';
+        badge.style.border = '';
+        badge.style.boxShadow = '';
+      }
+    }
+    if (star) {
+      star.classList.toggle('hidden', !isMaster);
+    }
+
     document.querySelectorAll('.badge').forEach(b => b.classList.remove('active'));
     const stage = this.getGrowthStage(this.state.tree.growthPoints);
     const sel = stage === 'seed' ? '.seed-badge' : stage === 'sprout' ? '.sprout-badge' : stage === 'stem' ? '.stem-badge' : stage === 'tree' ? '.tree-badge' : '.star-badge';
@@ -336,9 +322,7 @@ window.EduEngine = class EduEngine {
   }
 
   weightedPick(candidates) {
-    // 오답/힌트가 많을수록 가중치↑, 최근 출제는 가중치↓
     const recentSet = new Set(this.state.recentQueue);
-
     const weights = candidates.map((w) => {
       const st = this.getItemStat(w.id);
       const base = 1;
@@ -346,8 +330,7 @@ window.EduEngine = class EduEngine {
       const hintBoost = st.hints * 1.0;
       const correctPenalty = st.correct * 0.25;
       const recentPenalty = recentSet.has(w.id) ? 0.15 : 1.0;
-      const score = Math.max(0.15, (base + wrongBoost + hintBoost - correctPenalty) * recentPenalty);
-      return score;
+      return Math.max(0.15, (base + wrongBoost + hintBoost - correctPenalty) * recentPenalty);
     });
 
     const sum = weights.reduce((a, b) => a + b, 0);
@@ -360,13 +343,10 @@ window.EduEngine = class EduEngine {
   }
 
   loadNextQuestion() {
-    this.isProcessing = false; // [수정] 새 문제가 로드되면 입력 잠금 해제
-
+    this.isProcessing = false; 
     if (!this.ensureDatabase()) return;
 
     const availableWords = this.getDBItems().filter(word => word.level <= this.state.unlockedLevel);
-
-    // [수정] DB의 실제 구조(subject)를 반영한 씨앗/새싹 난이도 필터링
     const stageNow = this.getGrowthStage(this.state.tree.growthPoints);
     const seedPool = (w) => w.level === 1 && /(숫자|양|자연|날씨|기초)/.test(String(w.subject || ''));
     const sproutPool = (w) => w.level === 1;
@@ -378,14 +358,13 @@ window.EduEngine = class EduEngine {
     if (!stageFiltered || stageFiltered.length < 10) stageFiltered = availableWords;
     
     if (availableWords.length === 0) {
-      if (this.el.questionText) this.el.questionText.innerText = '해금된 단어가 없습니다. (Level 설정 확인 필요)';
+      if (this.el.questionText) this.el.questionText.innerText = '해금된 단어가 없습니다.';
       return;
     }
 
-    this.currentQuestion = this.weightedPick(stageFiltered); // 필터링된 배열에서 추출
+    this.currentQuestion = this.weightedPick(stageFiltered); 
     this.hintsUsed = 0;
 
-    // 통계 업데이트
     const st = this.getItemStat(this.currentQuestion.id);
     st.seen += 1;
     st.lastSeen = Date.now();
@@ -397,14 +376,21 @@ window.EduEngine = class EduEngine {
       const counts = this.getLevelCounts();
       const curLvl = this.currentQuestion.level;
       const label = this.levelLabel(curLvl);
-      const mastered = (this.state.mastery && this.state.mastery.master) ? " ⭐마스터" : "";
-      this.el.levelDisplay.innerText = `현재 단계: ${label} · 문항 ${counts[curLvl] || 0}개 (${this.currentQuestion.subject})${mastered}`;
+      
+      // [수정] GOD 등급 도달 시 문구 변경
+      let masteredStr = "";
+      if (this.state.mastery && this.state.mastery.god) {
+        masteredStr = " 👑GOD";
+      } else if (this.state.mastery && this.state.mastery.master) {
+        masteredStr = " ⭐마스터";
+      }
+
+      this.el.levelDisplay.innerText = `현재 단계: ${label} · 문항 ${counts[curLvl] || 0}개 (${this.currentQuestion.subject})${masteredStr}`;
     }
     if (this.el.questionText) {
       this.el.questionText.innerHTML = this.currentQuestion.context.replace('[ ? ]', '<span class="blank-box">[ ? ]</span>');
     }
 
-    // 마스터 UI 반영(상단 배지/나무 별)
     try { this.renderMasterUI(); } catch (_) {}
 
     if (this.el.answerInput) {
@@ -437,15 +423,11 @@ window.EduEngine = class EduEngine {
         if (this.state.mileage >= 10) {
           this.state.mileage -= 10;
           this.hintsUsed += 1;
-
-          // per-item 통계
           const st = this.getItemStat(this.currentQuestion.id);
           st.hints += 1;
-
           revealBtn.style.display = 'none';
           meaningSpan.classList.remove('hidden');
           meaningSpan.classList.add('visible');
-
           this.saveState();
           this.updateStatsDOM();
           this.showToast('힌트를 사용했어요 (-10 M)');
@@ -466,11 +448,35 @@ window.EduEngine = class EduEngine {
   }
 
   checkAnswer() {
-    if (this.isProcessing) return; // [수정] 처리 중일 경우 중복 입력 차단
+    if (this.isProcessing) return; 
 
     if (!this.currentQuestion || !this.el.answerInput) return;
 
     const inputVal = this.normalizeAnswer(this.el.answerInput.value);
+
+    // --- [개발자 시그니처 이스터 에그 구간] ---
+    const secretCodes = [
+      "박주가리교감선생님감사합니다", 
+      "열심히하겠습니다", 
+      "힘들어요도와주세요"
+    ];
+
+    if (secretCodes.includes(inputVal)) {
+      if (this.state.easterEggUsed) {
+        this.showToast('이미 축복을 받았습니다! 이제 스스로의 힘으로 학습해 보세요. 😊');
+        this.el.answerInput.value = '';
+        return; 
+      }
+      this.state.mileage += 500;
+      this.state.easterEggUsed = true; 
+      this.saveState();
+      this.updateStatsDOM();
+      this.el.answerInput.value = ''; 
+      this.showToast('🍀 개발자의 축복을 받았습니다! (+500 M)');
+      return; 
+    }
+    // -------------------------------------------
+
     const correctVal = this.normalizeAnswer(this.currentQuestion.word);
 
     if (!inputVal) {
@@ -478,7 +484,7 @@ window.EduEngine = class EduEngine {
       return;
     }
 
-    this.isProcessing = true; // [수정] 정답 판정 진입 시 잠금 설정
+    this.isProcessing = true; 
 
     if (inputVal === correctVal) {
       this.onCorrect();
@@ -488,15 +494,12 @@ window.EduEngine = class EduEngine {
   }
 
   onCorrect() {
-    // UI 피드백
     this.el.answerInput.style.borderColor = '#2ECC71';
     if (navigator.vibrate) navigator.vibrate(35);
 
-    // 보상 계산
     const baseReward = this.currentQuestion.level * 20;
     const noHintBonus = (this.hintsUsed === 0) ? 10 : 0;
 
-    // 스트릭
     this.state.stats.streak += 1;
     this.state.stats.totalSolved += 1;
 
@@ -511,30 +514,23 @@ window.EduEngine = class EduEngine {
       this.el.streak.style.display = 'none';
     }
 
-    // 성장 포인트: 정답 시 자동 적립(독해력 학습 루프 강화)
     const growthGain = (this.currentQuestion.level * 10) + ((this.hintsUsed === 0) ? 5 : 0);
     this.state.tree.growthPoints += growthGain;
 
-    // 마일리지 지급
     this.state.mileage += finalReward;
-    // v3.3.2: 정답 보상은 나무 성장점수에도 누적(마일리지와 별개)
     this.state.tree.growthPoints = (this.state.tree.growthPoints || 0) + finalReward;
 
-    // per-item 통계
     const st = this.getItemStat(this.currentQuestion.id);
     st.correct += 1;
 
-    // 단계 평가
     const phaseChanged = this.evaluatePhase();
 
     this.saveState();
     this.updateStatsDOM();
 
-    // 마스터(별) 상태 갱신
     try { this.computeMastery(); } catch (_) {}
     try { this.renderMasterUI(); } catch (_) {}
 
-    // 해설 카드
     const morphSummary = (this.currentQuestion.morphemes || [])
       .map(m => `${m.hanja}(${m.meaning ?? ''})`)
       .join(' · ');
@@ -563,18 +559,15 @@ window.EduEngine = class EduEngine {
     this.state.stats.streak = 0;
     if (this.el.streak) this.el.streak.style.display = 'none';
 
-    // per-item 통계
     const st = this.getItemStat(this.currentQuestion.id);
     st.wrong += 1;
     st.lastWrong = Date.now();
 
     this.saveState();
 
-    // 마스터(별) 상태 갱신
     try { this.computeMastery(); } catch (_) {}
     try { this.renderMasterUI(); } catch (_) {}
 
-    // UI 피드백
     this.el.answerInput.style.borderColor = '#E74C3C';
     if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
 
@@ -592,7 +585,7 @@ window.EduEngine = class EduEngine {
     this.el.answerInput.placeholder = '다시 유추해 보세요!';
     this.showToast('아쉬워요! 다시 한 번');
 
-    this.isProcessing = false; // [수정] 오답 처리 후 잠금 해제
+    this.isProcessing = false; 
   }
 
   // ----------------------
@@ -640,10 +633,6 @@ window.EduEngine = class EduEngine {
     return changed;
   }
 
-  // ----------------------
-  // 누락된 보조 메서드 (추가)
-  // ----------------------
-  
   getGrowthStage(points) {
     if (points >= this.GROWTH.star) return 'star';
     if (points >= this.GROWTH.tree) return 'tree';
