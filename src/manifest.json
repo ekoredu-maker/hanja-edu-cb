@@ -1,0 +1,19 @@
+{
+  "name": "품.꿈.힘 한자 어휘 추론 네비게이션",
+  "short_name": "품꿈힘 한자",
+  "description": "초등학생 문맥 기반 어휘 추론 학습 시스템",
+  "copyright": "2026@박주가리교감 (저작권 등록번호 제C-2026-010144호)",
+  "id": "./",
+  "start_url": "./index.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EEF3EC",
+  "theme_color": "#EEF3EC",
+  "orientation": "any",
+  "lang": "ko",
+  "icons": [
+    { "src": "icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

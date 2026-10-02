@@ -1,0 +1,12 @@
+{
+  "name": "pumkkumhim-hanja",
+  "version": "5.0.0",
+  "private": true,
+  "description": "품.꿈.힘 한자 어휘 추론 공부 (PWA) — Copyright (c) 2026@박주가리교감, 저작권 등록번호 제C-2026-010144호",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "check": "node tools/build.mjs --check",
+    "serve": "node tools/build.mjs && cd dist && python3 -m http.server 8000"
+  },
+  "license": "UNLICENSED"
+}

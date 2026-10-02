@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>품꿈힘 한자 — 교사용 문항 관리</title>
+<link rel="stylesheet" href="../src/app/app.css">
+<style>
+  body { background: var(--paper); }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 18px 20px 40px; }
+  .top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .top h1 { font-family: var(--font-hanja); font-weight: 900; font-size: 1.4rem; margin-right: auto; }
+  .top .stat { color: var(--ink-soft); font-size: .92rem; }
+  .notice { background: #FFF4D6; color: #6B4E00; border-radius: var(--r-md); padding: 10px 14px; margin-bottom: 14px; font-size: .92rem; }
+  .notice.hidden { display: none; }
+  .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
+  .panel { background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px; }
+  .filters { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 10px; }
+  .filters input, .filters select, .field input, .field select, .field textarea {
+    width: 100%; min-height: 44px; border: 1.5px solid var(--line); border-radius: var(--r-sm); padding: 8px 12px; background: #fff;
+  }
+  .field textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
+  .list { list-style: none; max-height: calc(100dvh - 230px); overflow: auto; display: grid; gap: 4px; }
+  .list li button {
+    width: 100%; display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; text-align: left;
+    background: none; border: 1px solid transparent; border-radius: var(--r-sm); padding: 8px;
+  }
+  .list li button:hover { background: #F6FAF5; }
+  .list li button.sel { border-color: var(--leaf); background: #F1F8F2; }
+  .list .lv { width: 30px; height: 30px; display: grid; place-items: center; border: 1.5px solid var(--grid); font-family: var(--font-hanja); font-weight: 900; }
+  .list .w { font-weight: 700; }
+  .list .c { display: block; font-size: .82rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list .id { font-size: .75rem; color: var(--muted); }
+  .list .bad { color: var(--seal); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 120px 1fr; gap: 10px; }
+  .field { display: grid; gap: 4px; margin-bottom: 10px; }
+  .field label { font-size: .88rem; color: var(--ink-soft); }
+  .morph { display: grid; grid-template-columns: 90px 1fr 44px; gap: 8px; margin-bottom: 6px; }
+  .morph input:first-child { font-family: var(--font-hanja); font-size: 1.3rem; text-align: center; }
+  .row-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .errs { list-style: none; margin-top: 10px; display: grid; gap: 4px; font-size: .9rem; }
+  .errs li.e { color: var(--seal); }
+  .errs li.w { color: #8A6500; }
+  .preview { margin-top: 14px; border-top: 1px dashed var(--grid); padding-top: 14px; }
+  .preview .question-text { font-size: 1.15rem; }
+  .preview .hints { margin-top: 10px; }
+  .preview .hint-card { width: 112px; }
+  .preview .hint-card .hanja { width: 80px; height: 80px; font-size: 3rem; }
+  .preview .meaning { display: grid; }
+  .preview .hints { flex-direction: row; }
+  .preview .hint-card { display: grid; grid-template-columns: none; justify-items: center; width: 112px; }
+  .preview .hint-card .hanja { grid-row: auto; }
+  textarea, select { font: inherit; color: inherit; }
+  .help { font-size: .88rem; color: var(--ink-soft); line-height: 1.7; margin-top: 18px; }
+  .help code { background: #F1F3F5; padding: 1px 6px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>교사용 문항 관리</h1>
+    <span class="stat" id="stat"></span>
+    <label class="btn btn-line btn-sm" for="open-file">다른 questions.js 열기</label>
+    <input type="file" id="open-file" accept=".js" class="sr-only">
+    <button class="btn btn-ink btn-sm" id="export-btn" type="button">questions.js 내려받기</button>
+  </div>
+  <p class="notice hidden" id="draft-notice"></p>
+
+  <div class="cols">
+    <section class="panel" aria-label="문항 목록">
+      <div class="filters">
+        <input type="search" id="q" placeholder="낱말·한자·문장·id로 찾기">
+        <select id="lvf" aria-label="단계">
+          <option value="">전체 단계</option><option value="1">품</option><option value="2">꿈</option><option value="3">힘</option><option value="bad">확인 필요</option>
+        </select>
+      </div>
+      <button class="btn btn-line btn-sm" id="new-btn" type="button" style="width:100%;margin-bottom:8px">+ 새 문항</button>
+      <ul class="list" id="list"></ul>
+    </section>
+
+    <section class="panel" aria-label="문항 편집">
+      <form id="form" autocomplete="off">
+        <div class="grid3">
+          <div class="field"><label for="f-word">정답 낱말</label><input id="f-word" required></div>
+          <div class="field"><label for="f-level">단계</label>
+            <select id="f-level"><option value="1">1 · 품</option><option value="2">2 · 꿈</option><option value="3">3 · 힘</option></select></div>
+          <div class="field"><label for="f-subject">분류</label><input id="f-subject" list="subjects"><datalist id="subjects"></datalist></div>
+        </div>
+        <div class="field">
+          <label for="f-context">문장 — 정답 자리에 <b>[ ? ]</b> 를 넣으세요 <button type="button" class="link-btn" id="ins-blank">[ ? ] 넣기</button></label>
+          <textarea id="f-context"></textarea>
+        </div>
+        <div class="field"><label>한자와 뜻(훈·음) — 예: 日 / 날 일</label><div id="morphs"></div>
+          <button type="button" class="link-btn" id="add-morph" style="justify-self:start">+ 한자 추가</button></div>
+        <div class="field"><label for="f-id">id (자동으로 정해져요. 다른 문항과 겹치면 안 돼요)</label><input id="f-id"></div>
+        <ul class="errs" id="errs"></ul>
+        <div class="row-actions">
+          <button class="btn btn-ink" type="submit" id="save-btn">저장</button>
+          <button class="btn btn-line" type="button" id="dup-btn">복제해서 새 문항</button>
+          <button class="btn btn-danger" type="button" id="del-btn">삭제</button>
+        </div>
+      </form>
+      <div class="preview" aria-label="미리보기">
+        <p class="hints-label">학생 화면 미리보기</p>
+        <article class="passage"><p class="question-text" id="pv-text"></p></article>
+        <div class="hints" id="pv-hints"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="help">
+    <b>사용 순서</b><br>
+    ① 이 페이지에서 문항을 고치거나 추가하고 [저장]을 누릅니다(작업 내용은 이 브라우저에 임시 보관돼요).<br>
+    ② [questions.js 내려받기]를 누릅니다.<br>
+    ③ GitHub 저장소의 <code>src/data/questions.js</code>를 내려받은 파일로 바꿔 올리면(Upload files → Commit) 몇 분 뒤 자동으로 배포됩니다.<br>
+    학생 기록은 문항 <b>id</b>로 저장되므로, 이미 쓰던 문항의 id는 바꾸지 마세요.
+  </div>
+</div>
+
+<div id="toast" class="toast" aria-live="polite"></div>
+
+<script src="../src/data/questions.js"></script>
+<script>
+(function () {
+  'use strict';
+  var DRAFT = 'pkh.teacher.draft';
+  var LV = { 1: '품', 2: '꿈', 3: '힘' };
+  var $ = function (id) { return document.getElementById(id); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+  var original = (typeof vocabDatabase !== 'undefined' && Array.isArray(vocabDatabase)) ? vocabDatabase : [];
+  var items = clone(original);
+  var sel = -1; // 편집 중인 문항 번호(-1 = 새 문항)
+  var dirty = false;
+
+  function clone(a) { return JSON.parse(JSON.stringify(a)); }
+  function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(function () { t.classList.remove('show'); }, 1600); }
+
+  // 임시 보관본 복구
+  try {
+    var d = JSON.parse(localStorage.getItem(DRAFT) || 'null');
+    if (d && Array.isArray(d.items) && JSON.stringify(d.items) !== JSON.stringify(original)) {
+      var n = $('draft-notice');
+      n.innerHTML = '내려받지 않은 작업이 있어요(' + new Date(d.at).toLocaleString() + ', 문항 ' + d.items.length + '개). <button class="link-btn" id="use-draft">이어서 하기</button> <button class="link-btn" id="drop-draft">버리기</button>';
+      n.classList.remove('hidden');
+      $('use-draft').onclick = function () { items = d.items; dirty = true; n.classList.add('hidden'); renderList(); pick(0); };
+      $('drop-draft').onclick = function () { localStorage.removeItem(DRAFT); n.classList.add('hidden'); };
+    }
+  } catch (_) {}
+  function saveDraft() { dirty = true; try { localStorage.setItem(DRAFT, JSON.stringify({ at: Date.now(), items: items })); } catch (_) {} }
+
+  // ---------- 검사 (빌드 검사와 같은 기준)
+  function check(it, idx) {
+    var e = [], w = [];
+    if (!it.id) e.push('id가 없어요');
+    else if (items.some(function (x, i) { return i !== idx && x.id === it.id; })) e.push('id가 다른 문항과 겹쳐요');
+    if (!String(it.word || '').trim()) e.push('정답 낱말이 비어 있어요');
+    var c = String(it.context || ''), b = c.split('[ ? ]').length - 1;
+    if (!b) e.push('문장에 빈칸 [ ? ] 가 없어요');
+    if (b > 1) w.push('빈칸 [ ? ] 가 ' + b + '개예요(첫 번째만 표시돼요)');
+    if (it.word && c.indexOf(it.word) >= 0) w.push('문장 안에 정답 낱말이 그대로 보여요');
+    if (!it.morphemes || !it.morphemes.length) e.push('한자를 1개 이상 넣어 주세요');
+    (it.morphemes || []).forEach(function (m, k) {
+      if (!String(m.hanja || '').trim()) e.push((k + 1) + '번째 한자가 비어 있어요');
+      if (!String(m.meaning || '').trim()) w.push((k + 1) + '번째 한자의 뜻이 비어 있어요');
+    });
+    return { e: e, w: w };
+  }
+
+  // ---------- 목록
+  function renderList() {
+    var q = $('q').value.trim(), lf = $('lvf').value;
+    var html = '', shown = 0, bad = 0;
+    items.forEach(function (it, i) {
+      var r = check(it, i); var isBad = r.e.length || r.w.length; if (isBad) bad++;
+      if (lf === 'bad' ? !isBad : (lf && String(it.level) !== lf)) return;
+      if (q) {
+        var hay = [it.id, it.word, it.subject, it.context].concat((it.morphemes || []).map(function (m) { return m.hanja + m.meaning; })).join(' ');
+        if (hay.indexOf(q) < 0) return;
+      }
+      if (shown++ > 400) return;
+      html += '<li><button type="button" data-i="' + i + '" class="' + (i === sel ? 'sel' : '') + '">' +
+        '<span class="lv">' + (LV[it.level] || '?') + '</span>' +
+        '<span><span class="w' + (r.e.length ? ' bad' : '') + '">' + esc(it.word) + ' <span lang="zh-Hant">' + esc((it.morphemes || []).map(function (m) { return m.hanja; }).join('')) + '</span></span>' +
+        '<span class="c">' + esc(it.context) + '</span></span>' +
+        '<span class="id">' + esc(it.id) + (isBad ? ' ⚠' : '') + '</span></button></li>';
+    });
+    if (shown > 400) html += '<li class="c" style="padding:8px">…' + (shown - 400) + '개 더 있어요. 검색어로 좁혀 보세요.</li>';
+    $('list').innerHTML = html || '<li class="empty">찾는 문항이 없어요.</li>';
+    var cnt = { 1: 0, 2: 0, 3: 0 }; items.forEach(function (it) { cnt[it.level] = (cnt[it.level] || 0) + 1; });
+    $('stat').textContent = '문항 ' + items.length + '개 (품 ' + cnt[1] + ' · 꿈 ' + cnt[2] + ' · 힘 ' + cnt[3] + ')' + (bad ? ' · 확인 필요 ' + bad + '개' : '') + (dirty ? ' · 내려받지 않은 변경 있음' : '');
+    var subj = {}; items.forEach(function (it) { subj[it.subject] = 1; });
+    $('subjects').innerHTML = Object.keys(subj).sort().map(function (s) { return '<option value="' + esc(s) + '">'; }).join('');
+  }
+  $('list').addEventListener('click', function (e) { var b = e.target.closest('button[data-i]'); if (b) pick(Number(b.dataset.i)); });
+  $('q').addEventListener('input', renderList);
+  $('lvf').addEventListener('change', renderList);
+
+  // ---------- 편집
+  function morphRow(m) {
+    var div = document.createElement('div'); div.className = 'morph';
+    div.innerHTML = '<input placeholder="漢" aria-label="한자" value="' + esc(m.hanja) + '"><input placeholder="뜻 음 (예: 한수 한)" aria-label="뜻" value="' + esc(m.meaning) + '"><button type="button" class="icon-btn" aria-label="이 한자 빼기">✕</button>';
+    div.querySelector('button').onclick = function () { div.remove(); preview(); };
+    div.addEventListener('input', preview);
+    $('morphs').appendChild(div);
+  }
+  function readForm() {
+    return {
+      id: $('f-id').value.trim(), word: $('f-word').value.trim(), level: Number($('f-level').value), subject: $('f-subject').value.trim(),
+      context: $('f-context').value.trim(),
+      morphemes: Array.prototype.map.call($('morphs').children, function (r) { var ins = r.querySelectorAll('input'); return { hanja: ins[0].value.trim(), meaning: ins[1].value.trim() }; })
+        .filter(function (m) { return m.hanja || m.meaning; })
+    };
+  }
+  function fill(it) {
+    $('f-id').value = it.id || ''; $('f-word').value = it.word || ''; $('f-level').value = String(it.level || 1);
+    $('f-subject').value = it.subject || ''; $('f-context').value = it.context || '';
+    $('morphs').innerHTML = ''; (it.morphemes && it.morphemes.length ? it.morphemes : [{ hanja: '', meaning: '' }, { hanja: '', meaning: '' }]).forEach(morphRow);
+    preview();
+  }
+  function newId() {
+    var d = new Date(), base = 'new_' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '_';
+    for (var n = 1; ; n++) { var id = base + String(n).padStart(3, '0'); if (!items.some(function (x) { return x.id === id; })) return id; }
+  }
+  function pick(i) { sel = i; fill(items[i] || {}); $('del-btn').disabled = i < 0; renderList(); }
+  function preview() {
+    var it = readForm(), r = check(it, sel);
+    $('errs').innerHTML = r.e.map(function (x) { return '<li class="e">✖ ' + esc(x) + '</li>'; }).join('') + r.w.map(function (x) { return '<li class="w">! ' + esc(x) + '</li>'; }).join('');
+    $('pv-text').innerHTML = esc(it.context).replace('[ ? ]', '<span class="blank-box">[ ? ]</span>');
+    $('pv-hints').innerHTML = it.morphemes.map(function (m) { return '<div class="hint-card"><span class="hanja" lang="zh-Hant">' + esc(m.hanja) + '</span><span class="meaning">' + esc(m.meaning) + '</span></div>'; }).join('');
+  }
+  $('form').addEventListener('input', preview);
+  $('add-morph').onclick = function () { morphRow({ hanja: '', meaning: '' }); };
+  $('ins-blank').onclick = function () {
+    var t = $('f-context'), s = t.selectionStart, e = t.selectionEnd;
+    t.value = t.value.slice(0, s) + '[ ? ]' + t.value.slice(e); t.focus(); preview();
+  };
+  $('new-btn').onclick = function () { sel = -1; fill({ id: newId(), level: 1, morphemes: [] }); $('del-btn').disabled = true; renderList(); $('f-word').focus(); };
+  $('dup-btn').onclick = function () { var it = readForm(); it.id = newId(); sel = -1; fill(it); $('del-btn').disabled = true; toast('복제했어요. 고친 뒤 [저장]을 누르세요'); };
+  $('form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var it = readForm(), r = check(it, sel);
+    if (r.e.length) { toast('빨간 항목을 먼저 고쳐 주세요'); return; }
+    if (sel >= 0 && items[sel].id !== it.id && !confirm('id를 바꾸면 이 문항의 학생 기록(오답·힌트 통계)이 이어지지 않아요. 계속할까요?')) return;
+    if (sel >= 0) items[sel] = it; else { items.push(it); sel = items.length - 1; }
+    saveDraft(); renderList(); toast('저장했어요 (내려받기 전까지는 이 브라우저에만 있어요)');
+  });
+  $('del-btn').onclick = function () {
+    if (sel < 0) return;
+    if (!confirm('「' + items[sel].word + '」 문항을 삭제할까요?')) return;
+    items.splice(sel, 1); saveDraft(); pick(Math.min(sel, items.length - 1)); toast('삭제했어요');
+  };
+
+  // ---------- 내보내기 / 열기
+  function serialize(list) {
+    var head = '/*\n * Copyright (c) 2026@박주가리교감 All rights reserved.\n * 모듈: 문맥 추론용 문항 목록 — 문항 추가/수정은 이 파일에서 (교사용 문항관리 페이지로 편집 가능)\n * 저장: ' + new Date().toLocaleString() + ' · 문항 ' + list.length + '개\n */\n\nconst vocabDatabase = [\n';
+    var j = JSON.stringify;
+    var body = list.map(function (it) {
+      return '    {\n        id: ' + j(it.id) + ', word: ' + j(it.word) + ', level: ' + Number(it.level) + ', subject: ' + j(it.subject || '') + ',\n' +
+        '        context: ' + j(it.context) + ',\n' +
+        '        morphemes: [ ' + (it.morphemes || []).map(function (m) { return '{ hanja: ' + j(m.hanja) + ', meaning: ' + j(m.meaning) + ' }'; }).join(', ') + ' ]\n    }';
+    }).join(',\n');
+    return head + body + '\n];\n';
+  }
+  $('export-btn').onclick = function () {
+    var bad = items.map(check).filter(function (r) { return r.e.length; }).length;
+    if (bad && !confirm('오류가 있는 문항이 ' + bad + '개 있어요. 그래도 내려받을까요? (배포할 때 빌드가 멈춰요)')) return;
+    var blob = new Blob([serialize(items)], { type: 'text/javascript' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'questions.js';
+    document.body.appendChild(a); a.click(); a.remove();
+    dirty = false; try { localStorage.removeItem(DRAFT); } catch (_) {}
+    renderList(); toast('questions.js를 내려받았어요');
+  };
+  $('open-file').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      try {
+        var list = new Function(rd.result + '\n;return vocabDatabase;')();
+        if (!Array.isArray(list)) throw new Error('vocabDatabase 없음');
+        items = list; original = clone(list); dirty = false; renderList(); pick(0); toast('문항 ' + list.length + '개를 열었어요');
+      } catch (err) { alert('questions.js를 읽지 못했어요: ' + err.message); }
+    };
+    rd.readAsText(f); e.target.value = '';
+  });
+  window.addEventListener('beforeunload', function (e) { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+  if (!original.length) $('stat').textContent = '../src/data/questions.js를 찾지 못했어요. [다른 questions.js 열기]로 파일을 열어 주세요.';
+  renderList(); if (items.length) pick(0);
+})();
+</script>
+</body>
+</html>
